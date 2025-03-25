@@ -1,0 +1,36 @@
+# GitHub Copilot-related files
+.copilot/
+copilot-settings.json
+copilot-logs/
+copilot-telemetry/
+copilot-history.json
+copilot-cache/
+
+# Visual Studio-related files
+.vscode/
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build output
+bin/
+obj/
+out/
+*.exe
+*.dll
+*.pdb
+*.cache
+*.log
+
+# .NET dependencies
+*.db
+*.mdf
+*.ldf
+project.lock.json
+project.assets.json
+
+# Docker files
+docker-compose.override.yml
+.env

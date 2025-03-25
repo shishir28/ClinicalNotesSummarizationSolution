@@ -1,0 +1,101 @@
+﻿@page "/patients"
+@rendermode InteractiveServer
+@using ClinicalNotesSummarization.Domain.Entities
+@using ClinicalNotesSummarization.UI.Models
+@using ClinicalNotesSummarization.UI.Services
+@inject IPatientService PatientService
+@inject INotificationService NotificationService
+@inject IDialogService DialogService
+
+<MudPopoverProvider />
+<MudDialogProvider />
+<PageTitle>Manage Patients</PageTitle>
+
+<MudContainer>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="ShowAddModalAsync">Add Patient</MudButton>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudTable Items="PatientList" Hover="true" SortLabel="Sort By" Elevation="0" AllowUnsorted="false">
+                <HeaderContent>
+                    <MudTh>First Name</MudTh>
+                    <MudTh>Last Name</MudTh>
+                    <MudTh>Gender</MudTh>
+                    <MudTh>DOB</MudTh>
+                    <MudTh>Email</MudTh>
+                    <MudTh>PhoneNumber</MudTh>
+                    <MudTh>Actions</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="First Name">@context.FirstName</MudTd>
+                    <MudTd DataLabel="Last Name">@context.LastName</MudTd>
+                    <MudTd DataLabel="Gender">@context.Gender</MudTd>
+                    <MudTd DataLabel="DOB">@context.DateOfBirth</MudTd>
+                    <MudTd DataLabel="Email">@context.Email</MudTd>
+                    <MudTd DataLabel="PhoneNumber">@context.PhoneNumber</MudTd>
+                    <MudTd>
+                        <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="(() => ShowEditModalAsync(context))">Edit </MudButton>
+                        <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="(() => DeletePatientAsync(context.Id))">Delete </MudButton>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[]{50, 100}" />
+                </PagerContent>
+            </MudTable>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+
+@code {
+    private List<PatientDto> PatientList = new();
+
+    protected override async Task OnInitializedAsync() =>
+        PatientList = await PatientService.GetPatients();
+
+    private async Task ShowEditModalAsync(object patient)
+    {
+        var parameters = new DialogParameters<PatientDialog>
+        {
+            { x => x.EditingPatient, (patient as PatientDto) }
+        };
+        await SavePatient(parameters);
+    }
+
+    private async Task ShowAddModalAsync()
+    {
+        var parameters = new DialogParameters<PatientDialog>
+        {
+            { x => x.EditingPatient, new PatientDto() }
+        };
+        await SavePatient(parameters);
+    }
+
+    private async Task SavePatient(DialogParameters<PatientDialog> parameters)
+    {
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
+        var dialog = await DialogService.ShowAsync<PatientDialog>("Save Patient", parameters, options);
+        var result = await dialog.Result;
+        if (result == null || result.Canceled)
+            return;
+
+        var patientData = result!.Data as PatientDto;
+
+        if (patientData!.Id == Guid.Empty)
+            await PatientService.AddPatient(patientData);
+        else
+            await PatientService.UpdatePatient(patientData);
+
+        PatientList = await PatientService.GetPatients();
+        await NotificationService.Success("Patient saved successfully!");
+    }
+
+    private async Task DeletePatientAsync(Guid id)
+    {
+        await PatientService.DeletePatient(id);
+        PatientList = await PatientService.GetPatients();
+        await NotificationService.Warning("Patient deleted!");
+    }
+}

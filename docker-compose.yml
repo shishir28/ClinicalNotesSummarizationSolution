@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  clinicalnotesapi:
+    image: clinicalnotesapi:latest
+    build:
+      context: .
+      dockerfile: src/ClinicalNotesSummarization.Api/Dockerfile
+    ports:
+      - "8080:80"
+      - "8081:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgresConnection=Host=localhost;Database=ClinicalNotesDb;Username=postgres;Password=yourpassword;
+
+  clinicalnotesui:
+    image: clinicalnotesui:latest
+    build:
+      context: .
+      dockerfile: src/ClinicalNotesSummarization.UI/Dockerfile
+    ports:
+      - "8090:80"
+      - "8091:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ClinicalNotesDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: yourpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:

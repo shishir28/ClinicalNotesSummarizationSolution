@@ -1,0 +1,36 @@
+﻿@using ClinicalNotesSummarization.Domain.Entities
+@using ClinicalNotesSummarization.UI.Models
+@using ClinicalNotesSummarization.UI.Services
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField Label="First Name" @bind-Value="EditingPatient.FirstName" />
+        <MudTextField Label="Last Name" @bind-Value="EditingPatient.LastName"/>
+        <MudSelect T="Gender" Label="Gender" @bind-Value="EditingPatient.Gender">
+            <MudSelectItem Value="Gender.Male">Male</MudSelectItem>
+            <MudSelectItem Value="Gender.Female">Female</MudSelectItem>
+            <MudSelectItem Value="Gender.Other">Other</MudSelectItem>
+        </MudSelect>
+        <MudDatePicker @bind-Date="EditingPatient.DateOfBirth" DateFormat="dd.MM.yyyy" Placeholder="Select Date" />
+        <MudTextField Label="Phone" @bind-Value="EditingPatient.PhoneNumber" />
+        <MudTextField Label="Email" @bind-Value="EditingPatient.Email" />
+        <MudTextField Label="Address" @bind-Value="EditingPatient.Address" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public PatientDto EditingPatient { get; set; }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(EditingPatient));
+}
