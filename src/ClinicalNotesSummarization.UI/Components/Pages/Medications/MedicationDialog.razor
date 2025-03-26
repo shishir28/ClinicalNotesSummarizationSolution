@@ -1,0 +1,31 @@
+﻿@using ClinicalNotesSummarization.Domain.Entities
+@using ClinicalNotesSummarization.UI.Models
+@using ClinicalNotesSummarization.UI.Services
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="EditingMedication.Name" />
+        <MudTextField Label="Dosage" @bind-Value="EditingMedication.Dosage" />
+        <MudTextField Label="Frequency" @bind-Value="EditingMedication.Frequency" />
+        <MudTextField Label="PrescribingDoctor" @bind-Value="EditingMedication.PrescribingDoctor" />
+        <MudDatePicker @bind-Date="EditingMedication.StartDate" DateFormat="dd.MM.yyyy" Placeholder="Select Start Date" />
+        <MudDatePicker @bind-Date="EditingMedication.EndDate" DateFormat="dd.MM.yyyy" Placeholder="Select End Date" />        
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public MedicationDto EditingMedication { get; set; }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(EditingMedication));
+}

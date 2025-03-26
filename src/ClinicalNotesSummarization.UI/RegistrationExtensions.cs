@@ -1,5 +1,4 @@
 ﻿using ClinicalNotesSummarization.UI.Services;
-using MudBlazor;
 
 namespace ClinicalNotesSummarization.UI
 {
@@ -11,9 +10,9 @@ namespace ClinicalNotesSummarization.UI
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             //services.AddTransient<HttpClientAuthorizationDelegatingHandler>();
 
-            services.AddHttpClient<IPatientService, PatientService>(c => c.BaseAddress = new Uri(configuration["ApiSettings:GatewayAddress"]))
-                ;
-           
+            services.AddHttpClient<IPatientService, PatientService>(c => c.BaseAddress = new Uri(configuration["ApiSettings:GatewayAddress"]));
+            services.AddHttpClient<IMedicationService, MedicationService>(c => c.BaseAddress = new Uri(configuration["ApiSettings:GatewayAddress"]));
+
             services.AddScoped<INotificationService, NotificationService>();
             return services;
         }

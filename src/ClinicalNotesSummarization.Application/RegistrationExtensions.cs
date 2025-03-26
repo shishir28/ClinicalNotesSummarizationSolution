@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using ClinicalNotesSummarization.Application.Features.Patients.Commands;
-using ClinicalNotesSummarization.Application.Mappings;
 
 namespace ClinicalNotesSummarization.Application
 {

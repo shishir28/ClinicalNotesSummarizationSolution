@@ -1,5 +1,4 @@
-﻿using ClinicalNotesSummarization.UI.Models;
-using MudBlazor;
+﻿using MudBlazor;
 
 namespace ClinicalNotesSummarization.UI.Services
 {

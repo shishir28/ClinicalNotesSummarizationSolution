@@ -14,4 +14,6 @@ namespace ClinicalNotesSummarization.UI.Models
         public string Address { get; set; } = default!;
     }
 
+
+
 }

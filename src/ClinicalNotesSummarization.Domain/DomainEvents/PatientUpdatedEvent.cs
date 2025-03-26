@@ -1,7 +1,6 @@
 ﻿using ClinicalNotesSummarization.Domain.Entities;
 using ClinicalNotesSummarization.SharedKernel.Events;
 using MediatR;
-using System.Reflection;
 
 namespace ClinicalNotesSummarization.Domain.DomainEvents
 {

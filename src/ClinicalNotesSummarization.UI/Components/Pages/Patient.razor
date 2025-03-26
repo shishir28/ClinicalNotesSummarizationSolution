@@ -6,6 +6,7 @@
 @inject IPatientService PatientService
 @inject INotificationService NotificationService
 @inject IDialogService DialogService
+@inject NavigationManager Nav
 
 <MudPopoverProvider />
 <MudDialogProvider />
@@ -36,6 +37,7 @@
                     <MudTd DataLabel="Email">@context.Email</MudTd>
                     <MudTd DataLabel="PhoneNumber">@context.PhoneNumber</MudTd>
                     <MudTd>
+                        <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Pageview" OnClick="(() => NavigateToPatient(context))">View </MudButton>
                         <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="(() => ShowEditModalAsync(context))">Edit </MudButton>
                         <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="(() => DeletePatientAsync(context.Id))">Delete </MudButton>
                     </MudTd>
@@ -48,12 +50,17 @@
     </MudGrid>
 </MudContainer>
 
-
 @code {
     private List<PatientDto> PatientList = new();
 
     protected override async Task OnInitializedAsync() =>
         PatientList = await PatientService.GetPatients();
+
+    private void NavigateToPatient(object patient)
+    {
+        var patientId = (patient as PatientDto).Id;
+        Nav.NavigateTo($"/patient/{patientId}");
+    }
 
     private async Task ShowEditModalAsync(object patient)
     {

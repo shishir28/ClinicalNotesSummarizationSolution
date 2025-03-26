@@ -1,0 +1,105 @@
+﻿@page "/medications/{patientId}"
+@rendermode InteractiveServer
+@using ClinicalNotesSummarization.Domain.Entities
+@using ClinicalNotesSummarization.UI.Models
+@using ClinicalNotesSummarization.UI.Services
+@inject IPatientService PatientService
+@inject IMedicationService MedicationService
+@inject INotificationService NotificationService
+@inject IDialogService DialogService
+@inject NavigationManager Nav
+
+<MudPopoverProvider />
+<MudDialogProvider />
+<PageTitle>Manage Medications</PageTitle>
+
+<MudContainer>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="ShowAddModalAsync">Add MEdications</MudButton>
+        </MudItem>
+        <MudItem xs="12">
+            <MudTable Items="MedicationList" Hover="true" SortLabel="Sort By" Elevation="0" AllowUnsorted="false">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Dosage</MudTh>
+                    <MudTh>Frequency</MudTh>
+                    <MudTh>PrescribingDoctor</MudTh>
+                    <MudTh>StartDate</MudTh>
+                    <MudTh>EndDate</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="Dosage">@context.Dosage</MudTd>
+                    <MudTd DataLabel="Frequency">@context.Frequency</MudTd>
+                    <MudTd DataLabel="PrescribingDoctor">@context.PrescribingDoctor</MudTd>
+                    <MudTd DataLabel="StartDate">@context.StartDate</MudTd>
+                    <MudTd DataLabel="EndDate">@context.EndDate</MudTd>
+                    <MudTd>
+                        @* <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Pageview" OnClick="(() => NavigateToPatient(context))">View </MudButton> *@
+                        <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="(() => ShowEditModalAsync(context))">Edit </MudButton>
+                        <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="(() => DeleteMedicationAsync(context.Id))">Delete </MudButton>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[]{50, 100}" />
+                </PagerContent>
+            </MudTable>
+        </MudItem>
+
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private List<MedicationDto> MedicationList = new();
+    [Parameter] public string PatientId { get; set; }
+    protected override async Task OnInitializedAsync() =>
+      MedicationList = await PatientService.GetMedicationsByPatientId(Guid.Parse(PatientId));
+
+    private async Task ShowEditModalAsync(object medication)
+    {
+        var parameters = new DialogParameters<MedicationDialog>
+        {
+            { x => x.EditingMedication, (medication as MedicationDto) }
+        };
+        await SaveMedication(parameters);
+    }
+
+
+    private async Task ShowAddModalAsync()
+    {
+        var medication = new MedicationDto { PatientId = Guid.Parse(this.PatientId) };
+        var parameters = new DialogParameters<MedicationDialog>
+        {
+            { x => x.EditingMedication, medication }
+        };
+        await SaveMedication(parameters);
+    }
+
+    private async Task SaveMedication(DialogParameters<MedicationDialog> parameters)
+    {
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
+        var dialog = await DialogService.ShowAsync<MedicationDialog>("Save Medication", parameters, options);
+        var result = await dialog.Result;
+        if (result == null || result.Canceled)
+            return;
+
+        var medicationData = result!.Data as MedicationDto;
+
+        if (medicationData!.Id == Guid.Empty)
+            await MedicationService.AddMedication(medicationData);
+        else
+            await MedicationService.UpdateMedication(medicationData);
+
+        MedicationList = await PatientService.GetMedicationsByPatientId(Guid.Parse(PatientId)); ;
+        await NotificationService.Success("Medication saved successfully!");
+    }
+
+
+    private async Task DeleteMedicationAsync(Guid id)
+    {
+        await MedicationService.DeleteMedication(id);
+        MedicationList = await PatientService.GetMedicationsByPatientId(Guid.Parse(PatientId)); ;
+        await NotificationService.Warning("Medication deleted!");
+    }
+}

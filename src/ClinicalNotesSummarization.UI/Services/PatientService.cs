@@ -2,6 +2,17 @@
 
 namespace ClinicalNotesSummarization.UI.Services
 {
+    public interface IPatientService
+    {
+        Task<List<PatientDto>> GetPatients();
+        Task<PatientDto> GetPatientById(Guid id);
+        Task AddPatient(PatientDto patient);
+        Task UpdatePatient(PatientDto patient);
+        Task DeletePatient(Guid id);
+
+        Task<List<MedicationDto>> GetMedicationsByPatientId(Guid patientId);
+    }
+
     public class PatientService : IPatientService
     {
         private readonly HttpClient _httpClient;
@@ -24,5 +35,8 @@ namespace ClinicalNotesSummarization.UI.Services
 
         public async Task DeletePatient(Guid id) =>
             await _httpClient.DeleteAsync($"api/patients/{id}");
+
+        public async Task<List<MedicationDto>> GetMedicationsByPatientId(Guid id) =>
+            await _httpClient.GetFromJsonAsync<List<MedicationDto>>($"api/patients/{id}/medications");
     }
 }

@@ -9,6 +9,7 @@ namespace ClinicalNotesSummarization.Infrastructure
         public static IServiceCollection AddInfrastructureDependencies(this IServiceCollection services)
         {
             services.AddScoped<IPatientRepository, PatientRepository>();
+            services.AddScoped<IMedicationRepository, MedicationRepository>();
             return services;
         }
     }

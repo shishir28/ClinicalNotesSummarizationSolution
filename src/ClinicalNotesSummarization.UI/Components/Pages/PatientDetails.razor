@@ -1,0 +1,64 @@
+﻿@page "/patient/{id}"
+@using ClinicalNotesSummarization.UI.Components.Pages.Medications
+@using ClinicalNotesSummarization.UI.Models
+@using ClinicalNotesSummarization.UI.Services
+@rendermode InteractiveServer
+@inject NavigationManager Nav
+@inject IPatientService PatientService
+
+<h2 class="text-2xl font-bold">Patient Details</h2>
+@if (patient != null)
+{
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudPaper Class="pa-4 mt-4">
+                <MudForm ReadOnly="true" Spacing="2">
+                    <MudTextField @bind-Value="@patient.FirstName" Label="First Name" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@patient.LastName" Label="Last Name" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@patient.Gender" Label="Gender" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@patient.DateOfBirth" Label="DOB" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@patient.Email" Label="Email" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@patient.PhoneNumber" Label="Phone Number" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@patient.Address" Label="Address" ReadOnly="readOnly" />
+                </MudForm>
+            </MudPaper>
+            <MudPaper Class="pa-4 mt-4">
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> Nav.NavigateTo($"/patients"))">Back To Patients</MudButton>
+            </MudPaper>
+            <MudPaper Class="pa-4 mt-4">
+                <MudTabs Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                    <MudTabPanel Text="Medications">
+                        <Medication PatientId="@Id" />
+                    </MudTabPanel>
+                    <MudTabPanel Text="Medical Condition">
+                        <MudText>Content Two</MudText>
+                    </MudTabPanel>
+                    <MudTabPanel Text="Diagnosis">
+                        <MudText>Content Three</MudText>
+                    </MudTabPanel>
+                    <MudTabPanel Text="Allergy" Disabled="true">
+                        <MudText>Content Disabled</MudText>
+                    </MudTabPanel>
+                </MudTabs>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+}
+else
+{
+    <p>Loading patient data...</p>
+}
+
+@code {
+    private PatientDto? patient;
+    [Parameter] public string Id { get; set; }
+    private bool showForm = false;
+    private bool readOnly = true;
+
+    protected override async Task OnInitializedAsync() =>
+        await LoadPatientData();
+
+    private async Task LoadPatientData() =>
+        patient = await PatientService.GetPatientById(Guid.Parse(Id));
+
+}

@@ -1,4 +1,5 @@
-﻿using ClinicalNotesSummarization.Application.Features.Patients.Commands;
+﻿using ClinicalNotesSummarization.Application.Features.Medications.Commands;
+using ClinicalNotesSummarization.Application.Features.Patients.Commands;
 using ClinicalNotesSummarization.Application.Features.Patients.Queries;
 using ClinicalNotesSummarization.Domain.Entities;
 using Mapster;
@@ -20,6 +21,18 @@ namespace ClinicalNotesSummarization.Application.Mappings
             TypeAdapterConfig<Patient, GetPatientByIdQueryResult>
            .NewConfig()
            .ConstructUsing(src => new GetPatientByIdQueryResult(src.FirstName, src.LastName, src.DateOfBirth, src.Gender, src.PhoneNumber, src.Email, src.Address));
+
+            TypeAdapterConfig<CreateMedicationCommand, Medication>
+            .NewConfig()
+            .ConstructUsing(src => new Medication(src.PatientId, src.Name, src.Dosage, src.Frequency, src.PrescribingDoctor, src.StartDate, src.EndDate));
+
+            TypeAdapterConfig<UpdateMedicationCommand, Medication>
+            .NewConfig()
+            .ConstructUsing(src => new Medication(src.PatientId, src.Name, src.Dosage, src.Frequency, src.PrescribingDoctor, src.StartDate, src.EndDate));
+
+            // TypeAdapterConfig<Patient, GetPatientByIdQueryResult>
+            //.NewConfig()
+            //.ConstructUsing(src => new GetPatientByIdQueryResult(src.FirstName, src.LastName, src.DateOfBirth, src.Gender, src.PhoneNumber, src.Email, src.Address));
 
             TypeAdapterConfig.GlobalSettings.Compile(); // Compile for performance
         }
