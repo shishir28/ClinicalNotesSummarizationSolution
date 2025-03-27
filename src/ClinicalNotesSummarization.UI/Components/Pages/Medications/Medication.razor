@@ -36,7 +36,7 @@
                     <MudTd DataLabel="StartDate">@context.StartDate?.ToString("dd-MM-yyyy")</MudTd>
                     <MudTd DataLabel="EndDate">@context.EndDate?.ToString("dd-MM-yyyy")</MudTd>
                     <MudTd>
-                        @* <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Pageview" OnClick="(() => NavigateToPatient(context))">View </MudButton> *@
+                        <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Pageview" OnClick="(() => NavigateToPatientMedication(context))">View </MudButton>
                         <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="(() => ShowEditModalAsync(context))">Edit </MudButton>
                         <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="(() => DeleteMedicationAsync(context.Id))">Delete </MudButton>
                     </MudTd>
@@ -55,6 +55,13 @@
     [Parameter] public string PatientId { get; set; }
     protected override async Task OnInitializedAsync() =>
       MedicationList = await PatientService.GetMedicationsByPatientId(Guid.Parse(PatientId));
+
+
+    private void NavigateToPatientMedication(object medication)
+    {
+        var medicationId = (medication as MedicationDto).Id;
+        Nav.NavigateTo($"/patient/{PatientId}/medications/{medicationId}");
+    }
 
     private async Task ShowEditModalAsync(object medication)
     {

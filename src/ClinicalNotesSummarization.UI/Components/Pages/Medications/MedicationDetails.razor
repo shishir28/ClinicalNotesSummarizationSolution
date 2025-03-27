@@ -1,0 +1,49 @@
+﻿@page "/patient/{patientId}/medications/{id}"
+@using ClinicalNotesSummarization.UI.Components.Pages.Medications
+@using ClinicalNotesSummarization.UI.Models
+@using ClinicalNotesSummarization.UI.Services
+@rendermode InteractiveServer
+@inject NavigationManager Nav
+@inject IPatientService PatientService
+@inject IMedicationService MedicationService
+
+<h2 class="text-2xl font-bold">Medication Details</h2>
+@if (medication != null)
+{
+    <MudGrid>
+        <MudItem xs="12" sm="10">
+            <MudPaper Class="pa-4 mt-4">
+                <MudForm ReadOnly="true" Spacing="2">
+                    <MudTextField @bind-Value="@medication.Name" Label="Name" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@medication.Dosage" Label="Dosage" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@medication.Frequency" Label="Frequency" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@medication.PrescribingDoctor" Label="PrescribingDoctor" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@medication.StartDate" Label="StartDate" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@medication.EndDate" Label="EndDate" ReadOnly="readOnly" />
+                </MudForm>
+            </MudPaper>
+            <MudPaper Class="pa-4 mt-4">
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> Nav.NavigateTo($"/patient/{PatientId}"))">Back To Patient</MudButton>
+            </MudPaper>           
+        </MudItem>
+    </MudGrid>
+}
+else
+{
+    <p>Loading Medication data...</p>
+}
+
+@code {
+    private MedicationDto? medication;
+    [Parameter] public string Id { get; set; }
+    [Parameter] public string PatientId { get; set; }
+    private bool showForm = false;
+    private bool readOnly = true;
+
+    protected override async Task OnInitializedAsync() =>
+        await LoadMedicationData();
+
+    private async Task LoadMedicationData() =>
+        medication = await MedicationService.GetMedicationById(Guid.Parse(Id));
+
+}
