@@ -1,4 +1,5 @@
-﻿using ClinicalNotesSummarization.Application.Features.Medications.Commands;
+﻿using ClinicalNotesSummarization.Application.Features.Allergies.Commands;
+using ClinicalNotesSummarization.Application.Features.Medications.Commands;
 using ClinicalNotesSummarization.Application.Features.Patients.Commands;
 using ClinicalNotesSummarization.Application.Features.Patients.Queries;
 using ClinicalNotesSummarization.Domain.Entities;
@@ -16,7 +17,7 @@ namespace ClinicalNotesSummarization.Application.Mappings
 
             TypeAdapterConfig<UpdatePatientCommand, Patient>
             .NewConfig()
-            .ConstructUsing(src => new Patient( src.FirstName, src.LastName, src.DateOfBirth, src.Gender, src.PhoneNumber, src.Email, src.Address));
+            .ConstructUsing(src => new Patient(src.FirstName, src.LastName, src.DateOfBirth, src.Gender, src.PhoneNumber, src.Email, src.Address));
 
             TypeAdapterConfig<Patient, GetPatientByIdQueryResult>
            .NewConfig()
@@ -29,6 +30,15 @@ namespace ClinicalNotesSummarization.Application.Mappings
             TypeAdapterConfig<UpdateMedicationCommand, Medication>
             .NewConfig()
             .ConstructUsing(src => new Medication(src.PatientId, src.Name, src.Dosage, src.Frequency, src.PrescribingDoctor, src.StartDate, src.EndDate));
+
+
+            TypeAdapterConfig<CreateAllergyCommand, Allergy>
+            .NewConfig()
+            .ConstructUsing(src => new Allergy(src.PatientId, src.Allergen, src.Reaction, src.Severity, src.RecordedDate));
+
+            TypeAdapterConfig<UpdateAllergyCommand, Allergy>
+            .NewConfig()
+            .ConstructUsing(src => new Allergy(src.PatientId, src.Allergen, src.Reaction, src.Severity, src.RecordedDate));
 
             // TypeAdapterConfig<Patient, GetPatientByIdQueryResult>
             //.NewConfig()

@@ -10,6 +10,7 @@ namespace ClinicalNotesSummarization.Infrastructure
         {
             services.AddScoped<IPatientRepository, PatientRepository>();
             services.AddScoped<IMedicationRepository, MedicationRepository>();
+            services.AddScoped<IAllergyRepository, AllergyRepository>();
             return services;
         }
     }

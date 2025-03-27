@@ -21,6 +21,8 @@ namespace ClinicalNotesSummarization.Infrastructure.Persistence
         public DbSet<Diagnosis> Diagnoses { get; set; }
         public DbSet<Medication> Medications { get; set; }
 
+        public DbSet<Allergy> Allergies { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
