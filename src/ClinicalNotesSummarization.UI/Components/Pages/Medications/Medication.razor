@@ -33,8 +33,8 @@
                     <MudTd DataLabel="Dosage">@context.Dosage</MudTd>
                     <MudTd DataLabel="Frequency">@context.Frequency</MudTd>
                     <MudTd DataLabel="PrescribingDoctor">@context.PrescribingDoctor</MudTd>
-                    <MudTd DataLabel="StartDate">@context.StartDate</MudTd>
-                    <MudTd DataLabel="EndDate">@context.EndDate</MudTd>
+                    <MudTd DataLabel="StartDate">@context.StartDate?.ToString("dd-MM-yyyy")</MudTd>
+                    <MudTd DataLabel="EndDate">@context.EndDate?.ToString("dd-MM-yyyy")</MudTd>
                     <MudTd>
                         @* <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Pageview" OnClick="(() => NavigateToPatient(context))">View </MudButton> *@
                         <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="(() => ShowEditModalAsync(context))">Edit </MudButton>
@@ -78,7 +78,7 @@
 
     private async Task SaveMedication(DialogParameters<MedicationDialog> parameters)
     {
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true };
         var dialog = await DialogService.ShowAsync<MedicationDialog>("Save Medication", parameters, options);
         var result = await dialog.Result;
         if (result == null || result.Canceled)

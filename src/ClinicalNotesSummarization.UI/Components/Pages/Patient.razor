@@ -33,7 +33,7 @@
                     <MudTd DataLabel="First Name">@context.FirstName</MudTd>
                     <MudTd DataLabel="Last Name">@context.LastName</MudTd>
                     <MudTd DataLabel="Gender">@context.Gender</MudTd>
-                    <MudTd DataLabel="DOB">@context.DateOfBirth</MudTd>
+                    <MudTd DataLabel="DOB">@context.DateOfBirth?.ToString("dd-MM-yyyy")</MudTd>
                     <MudTd DataLabel="Email">@context.Email</MudTd>
                     <MudTd DataLabel="PhoneNumber">@context.PhoneNumber</MudTd>
                     <MudTd>
@@ -82,7 +82,7 @@
 
     private async Task SavePatient(DialogParameters<PatientDialog> parameters)
     {
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true };
         var dialog = await DialogService.ShowAsync<PatientDialog>("Save Patient", parameters, options);
         var result = await dialog.Result;
         if (result == null || result.Canceled)
