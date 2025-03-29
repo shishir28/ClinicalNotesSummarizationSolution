@@ -12,6 +12,7 @@ namespace ClinicalNotesSummarization.UI.Services
 
         Task<List<MedicationDto>> GetMedicationsByPatientId(Guid patientId);
         Task<List<AllergyDto>> GeAllergiesByPatientId(Guid patientId);
+        Task<List<DiagnosisDto>> GeDiagnosesByPatientId(Guid patientId);
     }
 
     public class PatientService : IPatientService
@@ -42,5 +43,8 @@ namespace ClinicalNotesSummarization.UI.Services
 
         public async Task<List<AllergyDto>> GeAllergiesByPatientId(Guid patientId) =>
         await _httpClient.GetFromJsonAsync<List<AllergyDto>>($"api/patients/{patientId}/allergies");
+
+        public async Task<List<DiagnosisDto>> GeDiagnosesByPatientId(Guid patientId) =>
+            await _httpClient.GetFromJsonAsync<List<DiagnosisDto>>($"api/patients/{patientId}/diagnoses");
     }
 }

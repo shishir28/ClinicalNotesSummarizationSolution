@@ -3,6 +3,7 @@ using ClinicalNotesSummarization.Application.Features.Patients.Commands;
 using ClinicalNotesSummarization.Application.Features.Allergies.Commands;
 using ClinicalNotesSummarization.UI.Models;
 using Mapster;
+using ClinicalNotesSummarization.Application.Features.Diagnoses.Commands;
 
 namespace ClinicalNotesSummarization.UI
 {
@@ -22,7 +23,6 @@ namespace ClinicalNotesSummarization.UI
                 PhoneNumber = src.PhoneNumber,
                 Address = src.Address
             });
-
 
             TypeAdapterConfig<CreateMedicationCommand, MedicationDto>
               .NewConfig()
@@ -49,6 +49,20 @@ namespace ClinicalNotesSummarization.UI
                  CommonTriggers = src.CommonTriggers,
                  RecordedDate = src.RecordedDate,
              });
+
+            TypeAdapterConfig<CreateDiagnosisCommand, DiagnosisDto>
+          .NewConfig()
+          .ConstructUsing(src => new DiagnosisDto
+          {
+              PatientId = src.PatientId,
+              Code = src.Code,
+              Description = src.Description,
+              Severity = src.Severity,
+              PrescribingDoctor = src.PrescribingDoctor,
+              Notes = src.Notes,
+              DiagnosedOn = src.DiagnosedOn,
+          });
+
 
             TypeAdapterConfig.GlobalSettings.Compile(); // Compile for performance
         }

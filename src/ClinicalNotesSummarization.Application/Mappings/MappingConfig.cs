@@ -1,4 +1,5 @@
 ﻿using ClinicalNotesSummarization.Application.Features.Allergies.Commands;
+using ClinicalNotesSummarization.Application.Features.Diagnoses.Commands;
 using ClinicalNotesSummarization.Application.Features.Medications.Commands;
 using ClinicalNotesSummarization.Application.Features.Patients.Commands;
 using ClinicalNotesSummarization.Application.Features.Patients.Queries;
@@ -50,6 +51,15 @@ namespace ClinicalNotesSummarization.Application.Mappings
                 src.Symptoms,
                 src.CommonTriggers,
                 src.RecordedDate));
+
+            TypeAdapterConfig<CreateDiagnosisCommand, Diagnosis>
+            .NewConfig()
+            .ConstructUsing(src => new Diagnosis(src.PatientId, src.Code, src.Description, src.Severity, src.PrescribingDoctor, src.Notes, src.DiagnosedOn));
+
+            TypeAdapterConfig<UpdateDiagnosisCommand, Diagnosis>
+            .NewConfig()
+            .ConstructUsing(src => new Diagnosis(src.PatientId, src.Code, src.Description, src.Severity, src.PrescribingDoctor, src.Notes, src.DiagnosedOn));
+
 
             // TypeAdapterConfig<Patient, GetPatientByIdQueryResult>
             //.NewConfig()

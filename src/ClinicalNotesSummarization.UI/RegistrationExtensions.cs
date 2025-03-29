@@ -14,6 +14,7 @@ namespace ClinicalNotesSummarization.UI
             services.AddHttpClient<IPatientService, PatientService>(c => c.BaseAddress = baseAddress);
             services.AddHttpClient<IMedicationService, MedicationService>(c => c.BaseAddress = baseAddress);
             services.AddHttpClient<IAllergyService, AllergyService>(c => c.BaseAddress = baseAddress);
+            services.AddHttpClient<IDiagnosisService, DiagnosisService>(c => c.BaseAddress = baseAddress);
 
             services.AddScoped<INotificationService, NotificationService>();
             return services;

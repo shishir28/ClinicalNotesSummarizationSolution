@@ -1,4 +1,5 @@
 ﻿using ClinicalNotesSummarization.Application.Features.Allergies.Queries;
+using ClinicalNotesSummarization.Application.Features.Diagnoses.Queries;
 using ClinicalNotesSummarization.Application.Features.Medications.Queries;
 using ClinicalNotesSummarization.Application.Features.Patients.Commands;
 using ClinicalNotesSummarization.Application.Features.Patients.Queries;
@@ -83,27 +84,42 @@ namespace ClinicalNotesSummarization.Api.Controllers
         public async Task<IActionResult> GetMedicationsPatientById(Guid id)
         {
             var query = new GetAllMedicationByPatientIdQuery(id);
-            var patient = await _mediator.Send(query);
+            var medications = await _mediator.Send(query);
 
-            if (patient == null)
+            if (medications == null)
                 return NotFound();
 
-            return Ok(patient);
+            return Ok(medications);
         }
 
         [HttpGet("{id}/allergies")]
-        [SwaggerOperation(Summary = "Gets a allergy by patient by Id")]
+        [SwaggerOperation(Summary = "Gets a allergies by patient by Id")]
         [SwaggerResponse(200, "Allergies retrieved successfully", typeof(GetAllAllergyByPatientIdQuery))]
         [SwaggerResponse(404, "Allergies not found")]
         public async Task<IActionResult> GetAllergiesPatientById(Guid id)
         {
             var query = new GetAllAllergyByPatientIdQuery(id);
-            var patient = await _mediator.Send(query);
+            var allergies = await _mediator.Send(query);
 
-            if (patient == null)
+            if (allergies == null)
                 return NotFound();
 
-            return Ok(patient);
+            return Ok(allergies);
+        }
+
+        [HttpGet("{id}/diagnoses")]
+        [SwaggerOperation(Summary = "Gets a diagnoses by patient by Id")]
+        [SwaggerResponse(200, "Diagnoses retrieved successfully", typeof(GetAllDiagnosisByPatientIdQuery))]
+        [SwaggerResponse(404, "Diagnoses not found")]
+        public async Task<IActionResult> GetDiagnosesPatientById(Guid id)
+        {
+            var query = new GetAllDiagnosisByPatientIdQuery(id);
+            var diagnoses = await _mediator.Send(query);
+
+            if (diagnoses == null)
+                return NotFound();
+
+            return Ok(diagnoses);
         }
     }
 }

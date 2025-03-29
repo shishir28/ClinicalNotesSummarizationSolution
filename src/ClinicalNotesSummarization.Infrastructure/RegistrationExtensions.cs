@@ -11,6 +11,7 @@ namespace ClinicalNotesSummarization.Infrastructure
             services.AddScoped<IPatientRepository, PatientRepository>();
             services.AddScoped<IMedicationRepository, MedicationRepository>();
             services.AddScoped<IAllergyRepository, AllergyRepository>();
+            services.AddScoped<IDiagnosisRepository, DiagnosisRepository>();
             return services;
         }
     }

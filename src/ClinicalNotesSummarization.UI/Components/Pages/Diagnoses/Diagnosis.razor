@@ -1,0 +1,112 @@
+﻿@page "/diagnoses/{patientId}"
+@rendermode InteractiveServer
+@using ClinicalNotesSummarization.Domain.Entities
+@using ClinicalNotesSummarization.UI.Models
+@using ClinicalNotesSummarization.UI.Services
+@inject IPatientService PatientService
+@inject IDiagnosisService DiagnosisService
+@inject INotificationService NotificationService
+@inject IDialogService DialogService
+@inject NavigationManager Nav
+
+<MudPopoverProvider />
+<MudDialogProvider />
+<PageTitle>Manage Diagnoses</PageTitle>
+
+<MudContainer>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="ShowAddModalAsync">Add Diagnoses</MudButton>
+        </MudItem>
+        <MudItem xs="12">
+            <MudTable Items="DiagnosisList" Hover="true" SortLabel="Sort By" Elevation="0" AllowUnsorted="false">
+                <HeaderContent>
+                    <MudTh>Code</MudTh>
+                    <MudTh>Description</MudTh>
+                    <MudTh>Severity</MudTh>
+                    <MudTh>PrescribingDoctor</MudTh>
+                    <MudTh>Notes</MudTh>
+                    <MudTh>DiagnosedOn</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Code">@context.Code</MudTd>
+                    <MudTd DataLabel="Dosage">@context.Description</MudTd>
+                    <MudTd DataLabel="Frequency">@context.Severity</MudTd>
+                    <MudTd DataLabel="PrescribingDoctor">@context.PrescribingDoctor</MudTd>
+                    <MudTd DataLabel="PrescribingDoctor">@context.Notes</MudTd>
+                    <MudTd DataLabel="StartDate">@context.DiagnosedOn?.ToString("dd-MM-yyyy")</MudTd>
+                    <MudTd>
+                        <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Pageview" OnClick="(() => NavigateToPatientDiagnosis(context))">View </MudButton>
+                        <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="(() => ShowEditModalAsync(context))">Edit </MudButton>
+                        <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="(() => DeleteDiagnosisAsync(context.Id))">Delete </MudButton>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[]{50, 100}" />
+                </PagerContent>
+            </MudTable>
+        </MudItem>
+
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private List<DiagnosisDto> DiagnosisList = new();
+    [Parameter] public string PatientId { get; set; }
+    protected override async Task OnInitializedAsync() =>
+      DiagnosisList = await PatientService.GeDiagnosesByPatientId(Guid.Parse(PatientId));
+
+
+    private void NavigateToPatientDiagnosis(object diagnosis)
+    {
+        var diagnosisId = (diagnosis as DiagnosisDto).Id;
+        Nav.NavigateTo($"/patient/{PatientId}/diagnoses/{diagnosisId}");
+    }
+
+    private async Task ShowEditModalAsync(object diagnosis)
+    {
+        var parameters = new DialogParameters<DiagnosisDialog>
+        {
+            { x => x.EditingDiagnosis, (diagnosis as DiagnosisDto) }
+        };
+        await SaveDiagnosis(parameters);
+    }
+
+
+    private async Task ShowAddModalAsync()
+    {
+        var diagnosis = new DiagnosisDto { PatientId = Guid.Parse(this.PatientId) };
+        var parameters = new DialogParameters<DiagnosisDialog>
+        {
+            { x => x.EditingDiagnosis, diagnosis }
+        };
+        await SaveDiagnosis(parameters);
+    }
+
+    private async Task SaveDiagnosis(DialogParameters<DiagnosisDialog> parameters)
+    {
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<DiagnosisDialog>("Save Diagnosis", parameters, options);
+        var result = await dialog.Result;
+        if (result == null || result.Canceled)
+            return;
+
+        var diagnosisData = result!.Data as DiagnosisDto;
+
+        if (diagnosisData!.Id == Guid.Empty)
+            await DiagnosisService.AddDiagnosis(diagnosisData);
+        else
+            await DiagnosisService.UpdateDiagnosis(diagnosisData);
+
+        DiagnosisList = await PatientService.GeDiagnosesByPatientId(Guid.Parse(PatientId)); ;
+        await NotificationService.Success("Diagnosis saved successfully!");
+    }
+
+
+    private async Task DeleteDiagnosisAsync(Guid id)
+    {
+        await DiagnosisService.DeleteDiagnosis(id);
+        DiagnosisList = await PatientService.GeDiagnosesByPatientId(Guid.Parse(PatientId)); ;
+        await NotificationService.Warning("Diagnosis deleted!");
+    }
+}

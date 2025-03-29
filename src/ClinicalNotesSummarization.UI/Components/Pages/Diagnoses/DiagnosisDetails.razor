@@ -1,0 +1,49 @@
+﻿@page "/patient/{patientId}/diagnoses/{id}"
+@using ClinicalNotesSummarization.UI.Components.Pages.Medications
+@using ClinicalNotesSummarization.UI.Models
+@using ClinicalNotesSummarization.UI.Services
+@rendermode InteractiveServer
+@inject NavigationManager Nav
+@inject IPatientService PatientService
+@inject IDiagnosisService DiagnosisService
+
+<h2 class="text-2xl font-bold">Diagnosis Details</h2>
+@if (diagnosis != null)
+{
+    <MudGrid>
+        <MudItem xs="12" sm="10">
+            <MudPaper Class="pa-4 mt-4">
+                <MudForm ReadOnly="true" Spacing="2">
+                    <MudTextField @bind-Value="@diagnosis.Code" Label="Code" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@diagnosis.Description" Label="Description" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@diagnosis.Severity" Label="Severity" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@diagnosis.PrescribingDoctor" Label="PrescribingDoctor" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@diagnosis.Notes" Label="Notes" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@diagnosis.DiagnosedOn" Label="DiagnosedOn" ReadOnly="readOnly" />
+                </MudForm>
+            </MudPaper>
+            <MudPaper Class="pa-4 mt-4">
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> Nav.NavigateTo($"/patient/{PatientId}"))">Back To Patient</MudButton>
+            </MudPaper>           
+        </MudItem>
+    </MudGrid>
+}
+else
+{
+    <p>Loading Diagnosis data...</p>
+}
+
+@code {
+    private DiagnosisDto? diagnosis;
+    [Parameter] public string Id { get; set; }
+    [Parameter] public string PatientId { get; set; }
+    private bool showForm = false;
+    private bool readOnly = true;
+
+    protected override async Task OnInitializedAsync() =>
+        await LoadDiagnosisData();
+
+    private async Task LoadDiagnosisData() =>
+        diagnosis = await DiagnosisService.GetDiagnosisById(Guid.Parse(Id));
+
+}
