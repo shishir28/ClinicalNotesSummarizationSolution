@@ -31,11 +31,11 @@ namespace ClinicalNotesSummarization.Domain.Entities
         public DateTimeOffset CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTimeOffset? UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        public Patient(string firstName, 
+        public Patient(string firstName,
             string lastName,
             DateTimeOffset dateOfBirth,
-            Gender gender, 
-            string phoneNumber, 
+            Gender gender,
+            string phoneNumber,
             string email,
             string address)
         {
@@ -50,11 +50,11 @@ namespace ClinicalNotesSummarization.Domain.Entities
             AddDomainEvent(new PatientCreatedEvent(Id, FirstName, LastName));
         }
 
-        public void Update(string firstName, 
+        public void Update(string firstName,
             string lastName,
             DateTimeOffset dateOfBirth,
-            Gender gender, 
-            string phoneNumber, 
+            Gender gender,
+            string phoneNumber,
             string email)
         {
             FirstName = firstName;

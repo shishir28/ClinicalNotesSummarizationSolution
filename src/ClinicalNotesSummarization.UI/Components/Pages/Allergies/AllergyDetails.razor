@@ -1,0 +1,49 @@
+﻿@page "/patient/{patientId}/allergies/{id}"
+@using ClinicalNotesSummarization.UI.Components.Pages.Allergies
+@using ClinicalNotesSummarization.UI.Models
+@using ClinicalNotesSummarization.UI.Services
+@rendermode InteractiveServer
+@inject NavigationManager Nav
+@inject IPatientService PatientService
+@inject IAllergyService AllergyService
+
+<h2 class="text-2xl font-bold">Allergy Details</h2>
+@if (allergy != null)
+{
+    <MudGrid>
+        <MudItem xs="12" sm="10">
+            <MudPaper Class="pa-4 mt-4">
+                <MudForm ReadOnly="true" Spacing="2">
+                    <MudTextField @bind-Value="@allergy.Name" Label="Name" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@allergy.Type" Label="Type" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@allergy.Severity" Label="Severity" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@allergy.Symptoms" Label="Symptoms" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@allergy.CommonTriggers" Label="CommonTriggers" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@allergy.RecordedDate" Label="Recorded Date" ReadOnly="readOnly" />
+                </MudForm>
+            </MudPaper>
+            <MudPaper Class="pa-4 mt-4">
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> Nav.NavigateTo($"/patient/{PatientId}"))">Back To Patient</MudButton>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+}
+else
+{
+    <p>Loading Allergy data...</p>
+}
+
+@code {
+    private AllergyDto? allergy;
+    [Parameter] public string Id { get; set; }
+    [Parameter] public string PatientId { get; set; }
+    private bool showForm = false;
+    private bool readOnly = true;
+
+    protected override async Task OnInitializedAsync() =>
+        await LoadAllergyData();
+
+    private async Task LoadAllergyData() =>
+        allergy = await AllergyService.GetAllergyById(Guid.Parse(Id));
+
+}

@@ -61,21 +61,23 @@ namespace ClinicalNotesSummarization.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Allergy",
+                name: "Allergies",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     PatientId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Allergen = table.Column<string>(type: "text", nullable: false),
-                    Reaction = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Type = table.Column<string>(type: "text", nullable: false),
                     Severity = table.Column<string>(type: "text", nullable: false),
-                    RecordedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    Symptoms = table.Column<string>(type: "text", nullable: false),
+                    CommonTriggers = table.Column<string>(type: "text", nullable: false),
+                    RecordedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Allergy", x => x.Id);
+                    table.PrimaryKey("PK_Allergies", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Allergy_Patients_PatientId",
+                        name: "FK_Allergies_Patients_PatientId",
                         column: x => x.PatientId,
                         principalTable: "Patients",
                         principalColumn: "Id",
@@ -83,7 +85,7 @@ namespace ClinicalNotesSummarization.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Appointment",
+                name: "Appointments",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -94,9 +96,9 @@ namespace ClinicalNotesSummarization.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Appointment", x => x.Id);
+                    table.PrimaryKey("PK_Appointments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Appointment_Patients_PatientId",
+                        name: "FK_Appointments_Patients_PatientId",
                         column: x => x.PatientId,
                         principalTable: "Patients",
                         principalColumn: "Id",
@@ -125,7 +127,7 @@ namespace ClinicalNotesSummarization.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MedicalCondition",
+                name: "MedicalConditions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -136,9 +138,9 @@ namespace ClinicalNotesSummarization.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MedicalCondition", x => x.Id);
+                    table.PrimaryKey("PK_MedicalConditions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MedicalCondition_Patients_PatientId",
+                        name: "FK_MedicalConditions_Patients_PatientId",
                         column: x => x.PatientId,
                         principalTable: "Patients",
                         principalColumn: "Id",
@@ -155,7 +157,7 @@ namespace ClinicalNotesSummarization.Infrastructure.Migrations
                     Dosage = table.Column<string>(type: "text", nullable: false),
                     Frequency = table.Column<string>(type: "text", nullable: false),
                     PrescribingDoctor = table.Column<string>(type: "text", nullable: false),
-                    StartDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    StartDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     EndDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
@@ -170,13 +172,13 @@ namespace ClinicalNotesSummarization.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Allergy_PatientId",
-                table: "Allergy",
+                name: "IX_Allergies_PatientId",
+                table: "Allergies",
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Appointment_PatientId",
-                table: "Appointment",
+                name: "IX_Appointments_PatientId",
+                table: "Appointments",
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
@@ -185,8 +187,8 @@ namespace ClinicalNotesSummarization.Infrastructure.Migrations
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MedicalCondition_PatientId",
-                table: "MedicalCondition",
+                name: "IX_MedicalConditions_PatientId",
+                table: "MedicalConditions",
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
@@ -199,10 +201,10 @@ namespace ClinicalNotesSummarization.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Allergy");
+                name: "Allergies");
 
             migrationBuilder.DropTable(
-                name: "Appointment");
+                name: "Appointments");
 
             migrationBuilder.DropTable(
                 name: "ClinicalNotes");
@@ -211,7 +213,7 @@ namespace ClinicalNotesSummarization.Infrastructure.Migrations
                 name: "Diagnoses");
 
             migrationBuilder.DropTable(
-                name: "MedicalCondition");
+                name: "MedicalConditions");
 
             migrationBuilder.DropTable(
                 name: "MedicalProviders");

@@ -9,24 +9,24 @@ namespace ClinicalNotesSummarization.Application.Features.Allergies.Commands
         IRequestHandler<UpdateAllergyCommand>,
         IRequestHandler<DeleteAllergyCommand>
     {
-        private IMedicationRepository _medicationRepository;
+        private IAllergyRepository _allergyRepository;
 
-        public AllergyCommandHandler(IMedicationRepository medicationRepository) =>
-            _medicationRepository = medicationRepository;
+        public AllergyCommandHandler(IAllergyRepository allergyRepository) =>
+            _allergyRepository = allergyRepository;
 
         public async Task<Guid> Handle(CreateAllergyCommand request, CancellationToken cancellationToken)
         {
-            var medicationObject = request.Adapt<Medication>();
-            return await _medicationRepository.AddAsync(medicationObject);
+            var allergyObject = request.Adapt<Allergy>();
+            return await _allergyRepository.AddAsync(allergyObject);
         }
 
         public async Task Handle(UpdateAllergyCommand request, CancellationToken cancellationToken)
         {
-            var medicationObject = request.Adapt<Medication>();
-            await _medicationRepository.UpdateAsync(medicationObject);
+            var allergyObject = request.Adapt<Allergy>();
+            await _allergyRepository.UpdateAsync(allergyObject);
         }
 
         public async Task Handle(DeleteAllergyCommand request, CancellationToken cancellationToken) =>
-         await _medicationRepository.DeleteByIdAsync(request.Id);
+         await _allergyRepository.DeleteByIdAsync(request.Id);
     }
 }

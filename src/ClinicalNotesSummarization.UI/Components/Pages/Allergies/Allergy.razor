@@ -1,0 +1,112 @@
+﻿@page "/Allergies/{patientId}"
+@rendermode InteractiveServer
+@using ClinicalNotesSummarization.Domain.Entities
+@using ClinicalNotesSummarization.UI.Models
+@using ClinicalNotesSummarization.UI.Services
+@inject IPatientService PatientService
+@inject IAllergyService AllergyService
+@inject INotificationService NotificationService
+@inject IDialogService DialogService
+@inject NavigationManager Nav
+
+<MudPopoverProvider />
+<MudDialogProvider />
+<PageTitle>Manage Allergies</PageTitle>
+
+<MudContainer>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="ShowAddModalAsync">Add Allergies</MudButton>
+        </MudItem>
+        <MudItem xs="12">
+            <MudTable Items="AllergyList" Hover="true" SortLabel="Sort By" Elevation="0" AllowUnsorted="false">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Type</MudTh>
+                    <MudTh>Severity</MudTh>
+                    <MudTh>Symptoms</MudTh>
+                    <MudTh>Common Triggers</MudTh>
+
+                    <MudTh>Recorded Date</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="Type">@context.Type</MudTd>
+                    <MudTd DataLabel="Severity">@context.Severity</MudTd>
+                    <MudTd DataLabel="Symptoms">@context.Symptoms</MudTd>
+                    <MudTd DataLabel="Common Triggers">@context.CommonTriggers</MudTd>
+                    <MudTd DataLabel="StartDate">@context.RecordedDate?.ToString("dd-MM-yyyy")</MudTd>
+                    <MudTd>
+                        <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Pageview" OnClick="(() => NavigateToPatientAllergy(context))">View </MudButton>
+                        <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="(() => ShowEditModalAsync(context))">Edit </MudButton>
+                        <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="(() => DeleteAllergyAsync(context.Id))">Delete </MudButton>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[]{50, 100}" />
+                </PagerContent>
+            </MudTable>
+        </MudItem>
+
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private List<AllergyDto> AllergyList = new();
+    [Parameter] public string PatientId { get; set; }
+    protected override async Task OnInitializedAsync() =>
+      AllergyList = await PatientService.GeAllergiesByPatientId(Guid.Parse(PatientId));
+
+
+    private void NavigateToPatientAllergy(object Allergy)
+    {
+        var AllergyId = (Allergy as AllergyDto).Id;
+        Nav.NavigateTo($"/patient/{PatientId}/allergies/{AllergyId}");
+    }
+
+    private async Task ShowEditModalAsync(object Allergy)
+    {
+        var parameters = new DialogParameters<AllergyDialog>
+        {
+            { x => x.EditingAllergy, (Allergy as AllergyDto) }
+        };
+        await SaveAllergy(parameters);
+    }
+
+    private async Task ShowAddModalAsync()
+    {
+        var Allergy = new AllergyDto { PatientId = Guid.Parse(this.PatientId) };
+        var parameters = new DialogParameters<AllergyDialog>
+        {
+            { x => x.EditingAllergy, Allergy }
+        };
+        await SaveAllergy(parameters);
+    }
+
+    private async Task SaveAllergy(DialogParameters<AllergyDialog> parameters)
+    {
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<AllergyDialog>("Save Allergy", parameters, options);
+        var result = await dialog.Result;
+        if (result == null || result.Canceled)
+            return;
+
+        var AllergyData = result!.Data as AllergyDto;
+
+        if (AllergyData!.Id == Guid.Empty)
+            await AllergyService.AddAllergy(AllergyData);
+        else
+            await AllergyService.UpdateAllergy(AllergyData);
+
+        AllergyList = await PatientService.GeAllergiesByPatientId(Guid.Parse(PatientId)); ;
+        await NotificationService.Success("Allergy saved successfully!");
+    }
+
+
+    private async Task DeleteAllergyAsync(Guid id)
+    {
+        await AllergyService.DeleteAllergy(id);
+        AllergyList = await PatientService.GeAllergiesByPatientId(Guid.Parse(PatientId)); ;
+        await NotificationService.Warning("Allergy deleted!");
+    }
+}

@@ -5,8 +5,8 @@ using MediatR;
 namespace ClinicalNotesSummarization.Application.Features.Allergies.Queries
 {
     public class AllergyQueryHandler : IRequestHandler<GetAllergyIdQuery, GetAllergyByIdQueryResult>,
-                                          IRequestHandler<GetAllAllergyQuery, List<GetAllAllergyQueryResult>>,
-                                          IRequestHandler<GetAllAllergyByPatientIdQuery, List<GetAllAllergyByPatientIdQueryResult>>
+                                       IRequestHandler<GetAllAllergyQuery, List<GetAllAllergyQueryResult>>,
+                                       IRequestHandler<GetAllAllergyByPatientIdQuery, List<GetAllAllergyByPatientIdQueryResult>>
     {
         private IAllergyRepository _allergyRepository;
 

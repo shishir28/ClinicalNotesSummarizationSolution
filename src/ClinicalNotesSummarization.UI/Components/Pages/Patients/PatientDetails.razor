@@ -1,4 +1,5 @@
 ﻿@page "/patient/{id}"
+@using ClinicalNotesSummarization.UI.Components.Pages.Allergies
 @using ClinicalNotesSummarization.UI.Components.Pages.Medications
 @using ClinicalNotesSummarization.UI.Models
 @using ClinicalNotesSummarization.UI.Services
@@ -36,8 +37,8 @@
                     <MudTabPanel Text="Diagnosis">
                         <MudText>Content Three</MudText>
                     </MudTabPanel>
-                    <MudTabPanel Text="Allergy" Disabled="true">
-                        <MudText>Content Disabled</MudText>
+                    <MudTabPanel Text="Allergy">
+                        <Allergy PatientId="@Id" />
                     </MudTabPanel>
                 </MudTabs>
             </MudPaper>

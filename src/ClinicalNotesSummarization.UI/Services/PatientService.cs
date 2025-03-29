@@ -11,6 +11,7 @@ namespace ClinicalNotesSummarization.UI.Services
         Task DeletePatient(Guid id);
 
         Task<List<MedicationDto>> GetMedicationsByPatientId(Guid patientId);
+        Task<List<AllergyDto>> GeAllergiesByPatientId(Guid patientId);
     }
 
     public class PatientService : IPatientService
@@ -36,7 +37,10 @@ namespace ClinicalNotesSummarization.UI.Services
         public async Task DeletePatient(Guid id) =>
             await _httpClient.DeleteAsync($"api/patients/{id}");
 
-        public async Task<List<MedicationDto>> GetMedicationsByPatientId(Guid id) =>
-            await _httpClient.GetFromJsonAsync<List<MedicationDto>>($"api/patients/{id}/medications");
+        public async Task<List<MedicationDto>> GetMedicationsByPatientId(Guid patientId) =>
+            await _httpClient.GetFromJsonAsync<List<MedicationDto>>($"api/patients/{patientId}/medications");
+
+        public async Task<List<AllergyDto>> GeAllergiesByPatientId(Guid patientId) =>
+        await _httpClient.GetFromJsonAsync<List<AllergyDto>>($"api/patients/{patientId}/allergies");
     }
 }

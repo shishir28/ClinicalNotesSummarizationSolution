@@ -31,14 +31,25 @@ namespace ClinicalNotesSummarization.Application.Mappings
             .NewConfig()
             .ConstructUsing(src => new Medication(src.PatientId, src.Name, src.Dosage, src.Frequency, src.PrescribingDoctor, src.StartDate, src.EndDate));
 
-
             TypeAdapterConfig<CreateAllergyCommand, Allergy>
             .NewConfig()
-            .ConstructUsing(src => new Allergy(src.PatientId, src.Allergen, src.Reaction, src.Severity, src.RecordedDate));
+            .ConstructUsing(src => new Allergy(src.PatientId, 
+            src.Name, 
+            src.Type,
+                src.Severity,
+                src.Symptoms,
+                src.CommonTriggers,
+                src.RecordedDate));
 
             TypeAdapterConfig<UpdateAllergyCommand, Allergy>
             .NewConfig()
-            .ConstructUsing(src => new Allergy(src.PatientId, src.Allergen, src.Reaction, src.Severity, src.RecordedDate));
+               .ConstructUsing(src => new Allergy(src.PatientId, 
+               src.Name, 
+               src.Type,
+                src.Severity,
+                src.Symptoms,
+                src.CommonTriggers,
+                src.RecordedDate));
 
             // TypeAdapterConfig<Patient, GetPatientByIdQueryResult>
             //.NewConfig()

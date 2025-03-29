@@ -1,4 +1,5 @@
-﻿using ClinicalNotesSummarization.Application.Features.Medications.Queries;
+﻿using ClinicalNotesSummarization.Application.Features.Allergies.Queries;
+using ClinicalNotesSummarization.Application.Features.Medications.Queries;
 using ClinicalNotesSummarization.Application.Features.Patients.Commands;
 using ClinicalNotesSummarization.Application.Features.Patients.Queries;
 using MediatR;
@@ -82,6 +83,21 @@ namespace ClinicalNotesSummarization.Api.Controllers
         public async Task<IActionResult> GetMedicationsPatientById(Guid id)
         {
             var query = new GetAllMedicationByPatientIdQuery(id);
+            var patient = await _mediator.Send(query);
+
+            if (patient == null)
+                return NotFound();
+
+            return Ok(patient);
+        }
+
+        [HttpGet("{id}/allergies")]
+        [SwaggerOperation(Summary = "Gets a allergy by patient by Id")]
+        [SwaggerResponse(200, "Allergies retrieved successfully", typeof(GetAllAllergyByPatientIdQuery))]
+        [SwaggerResponse(404, "Allergies not found")]
+        public async Task<IActionResult> GetAllergiesPatientById(Guid id)
+        {
+            var query = new GetAllAllergyByPatientIdQuery(id);
             var patient = await _mediator.Send(query);
 
             if (patient == null)

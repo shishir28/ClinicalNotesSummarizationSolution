@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ClinicalNotesSummarization.Infrastructure.Migrations
 {
     [DbContext(typeof(ClinicalNotesDbContext))]
-    [Migration("20250323005527_InitialCreate")]
+    [Migration("20250329070130_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -31,21 +31,29 @@ namespace ClinicalNotesSummarization.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Allergen")
+                    b.Property<string>("CommonTriggers")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<Guid>("PatientId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Reaction")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("RecordedDate")
+                    b.Property<DateTimeOffset?>("RecordedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Symptoms")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -53,7 +61,7 @@ namespace ClinicalNotesSummarization.Infrastructure.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Allergy");
+                    b.ToTable("Allergies");
                 });
 
             modelBuilder.Entity("ClinicalNotesSummarization.Domain.Entities.Appointment", b =>
@@ -80,7 +88,7 @@ namespace ClinicalNotesSummarization.Infrastructure.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Appointment");
+                    b.ToTable("Appointments");
                 });
 
             modelBuilder.Entity("ClinicalNotesSummarization.Domain.Entities.ClinicalNote", b =>
@@ -159,7 +167,7 @@ namespace ClinicalNotesSummarization.Infrastructure.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("MedicalCondition");
+                    b.ToTable("MedicalConditions");
                 });
 
             modelBuilder.Entity("ClinicalNotesSummarization.Domain.Entities.MedicalProvider", b =>
@@ -213,7 +221,7 @@ namespace ClinicalNotesSummarization.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTimeOffset>("StartDate")
+                    b.Property<DateTimeOffset?>("StartDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");

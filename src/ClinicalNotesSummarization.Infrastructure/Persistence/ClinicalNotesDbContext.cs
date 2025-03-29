@@ -23,6 +23,9 @@ namespace ClinicalNotesSummarization.Infrastructure.Persistence
 
         public DbSet<Allergy> Allergies { get; set; }
 
+        public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<MedicalCondition> MedicalConditions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -40,10 +43,10 @@ namespace ClinicalNotesSummarization.Infrastructure.Persistence
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            foreach (var property in ChangeTracker.Entries<BaseEntity>().SelectMany(be=> be.Properties))
+            foreach (var property in ChangeTracker.Entries<BaseEntity>().SelectMany(be => be.Properties))
             {
-                    if (property.CurrentValue is DateTimeOffset dto)
-                        property.CurrentValue = dto.ToUniversalTime();
+                if (property.CurrentValue is DateTimeOffset dto)
+                    property.CurrentValue = dto.ToUniversalTime();
             }
 
             var domainEvents = ChangeTracker.Entries<BaseEntity>()

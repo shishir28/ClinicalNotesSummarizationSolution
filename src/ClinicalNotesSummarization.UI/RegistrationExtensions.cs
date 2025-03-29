@@ -9,9 +9,11 @@ namespace ClinicalNotesSummarization.UI
             services.AddHttpClient();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             //services.AddTransient<HttpClientAuthorizationDelegatingHandler>();
+            var baseAddress = new Uri(configuration["ApiSettings:GatewayAddress"]);
 
-            services.AddHttpClient<IPatientService, PatientService>(c => c.BaseAddress = new Uri(configuration["ApiSettings:GatewayAddress"]));
-            services.AddHttpClient<IMedicationService, MedicationService>(c => c.BaseAddress = new Uri(configuration["ApiSettings:GatewayAddress"]));
+            services.AddHttpClient<IPatientService, PatientService>(c => c.BaseAddress = baseAddress);
+            services.AddHttpClient<IMedicationService, MedicationService>(c => c.BaseAddress = baseAddress);
+            services.AddHttpClient<IAllergyService, AllergyService>(c => c.BaseAddress = baseAddress);
 
             services.AddScoped<INotificationService, NotificationService>();
             return services;

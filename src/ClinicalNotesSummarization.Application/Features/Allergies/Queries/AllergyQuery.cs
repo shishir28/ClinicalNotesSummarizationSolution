@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using System.Xml.Linq;
 
 namespace ClinicalNotesSummarization.Application.Features.Allergies.Queries
 {
@@ -15,23 +16,29 @@ namespace ClinicalNotesSummarization.Application.Features.Allergies.Queries
     {
         public Guid Id { get; } = default!;
         public Guid PatientId { get; }  // Foreign Key
-        public string Allergen { get; }
-        public string Reaction { get; }
-        public string Severity { get; }
-        public DateTimeOffset? RecordedDate { get; }
+        public string Name { get; set; }
+        public string Type { get; set; }
 
+        public string Severity { get; set; }  // Enum: Mild, Moderate, Severe
+        public string Symptoms { get; set; }
+        public string CommonTriggers { get; set; }
+        public DateTimeOffset? RecordedDate { get; }
         public GetAllergyByIdQueryResult(Guid id,
             Guid patientId,
-            string allergen,
-            string reaction,
+            string name,
+            string type,
             string severity,
+            string symptoms,
+            string commonTriggers,            
             DateTimeOffset? recordedDate)
         {
             Id = id;
             PatientId = patientId;
-            Allergen = allergen;
-            Reaction = reaction;
+            Name = name;
+            Type = type;
             Severity = severity;
+            Symptoms = symptoms;
+            CommonTriggers = commonTriggers;
             RecordedDate = recordedDate;
         }
     }
@@ -44,26 +51,32 @@ namespace ClinicalNotesSummarization.Application.Features.Allergies.Queries
     {
         public Guid Id { get; } = default!;
         public Guid PatientId { get; }  // Foreign Key
-        public string Allergen { get; }
-        public string Reaction { get; }
-        public string Severity { get; }
+        public string Name { get; set; }
+        public string Type { get; set; }
+
+        public string Severity { get; set; }  // Enum: Mild, Moderate, Severe
+        public string Symptoms { get; set; }
+        public string CommonTriggers { get; set; }
         public DateTimeOffset? RecordedDate { get; }
         public GetAllAllergyQueryResult(Guid id,
             Guid patientId,
-            string allergen,
-            string reaction,
+            string name,
+            string type,
             string severity,
+            string symptoms,
+            string commonTriggers,
             DateTimeOffset? recordedDate)
         {
             Id = id;
             PatientId = patientId;
-            Allergen = allergen;
-            Reaction = reaction;
+            Name = name;
+            Type = type;
             Severity = severity;
+            Symptoms = symptoms;
+            CommonTriggers = commonTriggers;
             RecordedDate = recordedDate;
         }
     }
-
 
     public class GetAllAllergyByPatientIdQuery : IRequest<List<GetAllAllergyByPatientIdQueryResult>>
     {
@@ -78,22 +91,29 @@ namespace ClinicalNotesSummarization.Application.Features.Allergies.Queries
     {
         public Guid Id { get; } = default!;
         public Guid PatientId { get; }  // Foreign Key
-        public string Allergen { get; }
-        public string Reaction { get; }
-        public string Severity { get; }
+        public string Name { get; set; }
+        public string Type { get; set; }
+
+        public string Severity { get; set; }  // Enum: Mild, Moderate, Severe
+        public string Symptoms { get; set; }
+        public string CommonTriggers { get; set; }
         public DateTimeOffset? RecordedDate { get; }
         public GetAllAllergyByPatientIdQueryResult(Guid id,
             Guid patientId,
-            string allergen,
-            string reaction,
+            string name,
+            string type,
             string severity,
+            string symptoms,
+            string commonTriggers,
             DateTimeOffset? recordedDate)
         {
             Id = id;
             PatientId = patientId;
-            Allergen = allergen;
-            Reaction = reaction;
+            Name = name;
+            Type = type;
             Severity = severity;
+            Symptoms = symptoms;
+            CommonTriggers = commonTriggers;
             RecordedDate = recordedDate;
         }
     }
