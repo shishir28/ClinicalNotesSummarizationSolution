@@ -1,0 +1,31 @@
+﻿@using ClinicalNotesSummarization.Domain.Entities
+@using ClinicalNotesSummarization.UI.Models
+@using ClinicalNotesSummarization.UI.Services
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="EditingMedicalCondition.Name" />
+        <MudTextField Label="Description" @bind-Value="EditingMedicalCondition.Description" />
+        <MudTextField Label="Symptoms" @bind-Value="EditingMedicalCondition.Symptoms" />
+        <MudTextField Label="Causes" @bind-Value="EditingMedicalCondition.Causes" />
+        <MudTextField Label="Treatments" @bind-Value="EditingMedicalCondition.Treatments" />
+        <MudTextField Label="Severity" @bind-Value="EditingMedicalCondition.Severity" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public MedicalConditionDto EditingMedicalCondition { get; set; }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(EditingMedicalCondition));
+}

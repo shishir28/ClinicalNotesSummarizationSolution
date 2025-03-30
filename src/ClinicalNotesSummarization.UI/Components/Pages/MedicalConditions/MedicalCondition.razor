@@ -1,0 +1,110 @@
+﻿@page "/medicalconditions/{patientId}"
+@rendermode InteractiveServer
+@using ClinicalNotesSummarization.Domain.Entities
+@using ClinicalNotesSummarization.UI.Models
+@using ClinicalNotesSummarization.UI.Services
+@inject IPatientService PatientService
+@inject IMedicalConditionService MedicalConditionService
+@inject INotificationService NotificationService
+@inject IDialogService DialogService
+@inject NavigationManager Nav
+
+<MudPopoverProvider />
+<MudDialogProvider />
+<PageTitle>Manage Medical Conditions</PageTitle>
+
+<MudContainer>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary" OnClick="ShowAddModalAsync">Add Medical Condition</MudButton>
+        </MudItem>
+        <MudItem xs="12">
+            <MudTable Items="MedicalConditionList" Hover="true" SortLabel="Sort By" Elevation="0" AllowUnsorted="false">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Description</MudTh>
+                    <MudTh>Symptoms</MudTh>
+                    <MudTh>Causes</MudTh>
+                    <MudTh>Treatments</MudTh>
+                    <MudTh>Severity</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="Description">@context.Description</MudTd>
+                    <MudTd DataLabel="Symptoms">@context.Symptoms</MudTd>
+                    <MudTd DataLabel="Causes">@context.Causes</MudTd>
+                    <MudTd DataLabel="Treatments">@context.Treatments</MudTd>
+                    <MudTd DataLabel="Severity">@context.Severity</MudTd>
+                    <MudTd>
+                        <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Pageview" OnClick="(() => NavigateToPatientMedicalCondition(context))">View </MudButton>
+                        <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="(() => ShowEditModalAsync(context))">Edit </MudButton>
+                        <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="(() => DeleteMedicalConditionAsync(context.Id))">Delete </MudButton>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[]{50, 100}" />
+                </PagerContent>
+            </MudTable>
+        </MudItem>
+
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private List<MedicalConditionDto> MedicalConditionList = new();
+    [Parameter] public string PatientId { get; set; }
+    protected override async Task OnInitializedAsync() =>
+      MedicalConditionList = await PatientService.GeMedicalConditionsByPatientId(Guid.Parse(PatientId));
+
+
+    private void NavigateToPatientMedicalCondition(object medicalCondition)
+    {
+        var medicalConditionId = (medicalCondition as MedicalConditionDto).Id;
+        Nav.NavigateTo($"/patient/{PatientId}/medicalconditions/{medicalConditionId}");
+    }
+
+    private async Task ShowEditModalAsync(object medicalCondition)
+    {
+        var parameters = new DialogParameters<MedicalConditionDialog>
+        {
+            { x => x.EditingMedicalCondition, (medicalCondition as MedicalConditionDto) }
+        };
+        await SaveMedicalCondition(parameters);
+    }
+
+    private async Task ShowAddModalAsync()
+    {
+        var medicalCondition = new MedicalConditionDto { PatientId = Guid.Parse(this.PatientId) };
+        var parameters = new DialogParameters<MedicalConditionDialog>
+        {
+            { x => x.EditingMedicalCondition, medicalCondition }
+        };
+        await SaveMedicalCondition(parameters);
+    }
+
+    private async Task SaveMedicalCondition(DialogParameters<MedicalConditionDialog> parameters)
+    {
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<MedicalConditionDialog>("Save MedicalCondition", parameters, options);
+        var result = await dialog.Result;
+        if (result == null || result.Canceled)
+            return;
+
+        var medicalConditionData = result!.Data as MedicalConditionDto;
+
+        if (medicalConditionData!.Id == Guid.Empty)
+            await MedicalConditionService.AddMedicalCondition(medicalConditionData);
+        else
+            await MedicalConditionService.UpdateMedicalCondition(medicalConditionData);
+
+        MedicalConditionList = await PatientService.GeMedicalConditionsByPatientId(Guid.Parse(PatientId)); ;
+        await NotificationService.Success("MedicalCondition saved successfully!");
+    }
+
+    private async Task DeleteMedicalConditionAsync(Guid id)
+    {
+        await MedicalConditionService.DeleteMedicalCondition(id);
+        MedicalConditionList = await PatientService.GeMedicalConditionsByPatientId(Guid.Parse(PatientId)); ;
+        await NotificationService.Warning("MedicalCondition deleted!");
+    }
+}

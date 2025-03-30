@@ -1,6 +1,7 @@
 ﻿@page "/patient/{id}"
 @using ClinicalNotesSummarization.UI.Components.Pages.Allergies
 @using ClinicalNotesSummarization.UI.Components.Pages.Diagnoses
+@using ClinicalNotesSummarization.UI.Components.Pages.MedicalConditions
 @using ClinicalNotesSummarization.UI.Components.Pages.Medications
 @using ClinicalNotesSummarization.UI.Models
 @using ClinicalNotesSummarization.UI.Services
@@ -33,7 +34,7 @@
                         <Medication PatientId="@Id" />
                     </MudTabPanel>
                     <MudTabPanel Text="Medical Condition">
-                        <MudText>Content Two</MudText>
+                        <MedicalCondition PatientId="@Id" />
                     </MudTabPanel>
                     <MudTabPanel Text="Diagnosis">
                         <Diagnosis PatientId="@Id" />

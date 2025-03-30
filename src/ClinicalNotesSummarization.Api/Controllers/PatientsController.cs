@@ -1,5 +1,6 @@
 ﻿using ClinicalNotesSummarization.Application.Features.Allergies.Queries;
 using ClinicalNotesSummarization.Application.Features.Diagnoses.Queries;
+using ClinicalNotesSummarization.Application.Features.MedicalConditions.Queries;
 using ClinicalNotesSummarization.Application.Features.Medications.Queries;
 using ClinicalNotesSummarization.Application.Features.Patients.Commands;
 using ClinicalNotesSummarization.Application.Features.Patients.Queries;
@@ -120,6 +121,21 @@ namespace ClinicalNotesSummarization.Api.Controllers
                 return NotFound();
 
             return Ok(diagnoses);
+        }
+
+        [HttpGet("{id}/medicalconditions")]
+        [SwaggerOperation(Summary = "Gets a medical conditions by patient by Id")]
+        [SwaggerResponse(200, "Medical conditions retrieved successfully", typeof(GetAllDiagnosisByPatientIdQuery))]
+        [SwaggerResponse(404, "< m>edical conditions not found")]
+        public async Task<IActionResult> GetMedicalConditionsPatientById(Guid id)
+        {
+            var query = new GetAllMedicalConditionByPatientIdQuery(id);
+            var medicalConditions = await _mediator.Send(query);
+
+            if (medicalConditions == null)
+                return NotFound();
+
+            return Ok(medicalConditions);
         }
     }
 }

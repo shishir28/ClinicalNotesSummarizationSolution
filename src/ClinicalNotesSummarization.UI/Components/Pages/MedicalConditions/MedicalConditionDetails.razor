@@ -1,0 +1,49 @@
+﻿@page "/patient/{patientId}/medicalconditions/{id}"
+@using ClinicalNotesSummarization.UI.Components.Pages.MedicalConditions
+@using ClinicalNotesSummarization.UI.Models
+@using ClinicalNotesSummarization.UI.Services
+@rendermode InteractiveServer
+@inject NavigationManager Nav
+@inject IPatientService PatientService
+@inject IMedicalConditionService MedicalConditionService
+
+<h2 class="text-2xl font-bold">Medical Condition Details</h2>
+@if (medicalCondition != null)
+{
+    <MudGrid>
+        <MudItem xs="12" sm="10">
+            <MudPaper Class="pa-4 mt-4">
+                <MudForm ReadOnly="true" Spacing="2">
+                    <MudTextField @bind-Value="@medicalCondition.Name" Label="Name" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@medicalCondition.Description" Label="Description" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@medicalCondition.Symptoms" Label="Symptoms" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@medicalCondition.Causes" Label="Causes" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@medicalCondition.Treatments" Label="Treatments" ReadOnly="readOnly" />
+                    <MudTextField @bind-Value="@medicalCondition.Severity" Label="Severity" ReadOnly="readOnly" />
+                </MudForm>
+            </MudPaper>
+            <MudPaper Class="pa-4 mt-4">
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> Nav.NavigateTo($"/patient/{PatientId}"))">Back To Patient</MudButton>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+}
+else
+{
+    <p>Loading Medical Condition data...</p>
+}
+
+@code {
+    private MedicalConditionDto? medicalCondition;
+    [Parameter] public string Id { get; set; }
+    [Parameter] public string PatientId { get; set; }
+    private bool showForm = false;
+    private bool readOnly = true;
+
+    protected override async Task OnInitializedAsync() =>
+        await LoadMedicationData();
+
+    private async Task LoadMedicationData() =>
+        medicalCondition = await MedicalConditionService.GetMedicalConditionById(Guid.Parse(Id));
+
+}
