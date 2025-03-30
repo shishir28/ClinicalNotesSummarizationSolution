@@ -54,11 +54,12 @@ This project is an AI-powered system that processes clinical notes, extracts key
    - Configure database connection string
 4. Run database migrations:
    ```sh
-   dotnet ef database update
+   dotnet ef database update --project ClinicalNotesSummarization.Infrastructure --startup-project ClinicalNotesSummarization.Api
    ```
 5. Start the application:
    ```sh
    dotnet run --project src/ClinicalNotesSummarization.Api
+   dotnet run --project src/ClinicalNotesSummarization.UI
    ```
 6. Access the UI:
    - If using Blazor: `http://localhost:5000`
@@ -74,5 +75,3 @@ Contributions are welcome! Please submit a pull request or open an issue.
 
 ## License
 This project is licensed under the MIT License.
-
-# dotnet ef database update --project ClinicalNotesSummarization.Infrastructure --startup-project ClinicalNotesSummarization.Api
