@@ -117,5 +117,4 @@ namespace ClinicalNotesSummarization.Application.Features.MedicalConditions.Quer
             Severity = severity;
         }
     }
-
 }

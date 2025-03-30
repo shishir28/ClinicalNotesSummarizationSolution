@@ -77,7 +77,6 @@ namespace ClinicalNotesSummarization.Application.Features.Diagnoses.Queries
         }
     }
 
-
     public class GetAllDiagnosisByPatientIdQuery : IRequest<List<GetAllDiagnosisByPatientIdQueryResult>>
     {
         public Guid PatientId { get; set; } = default!;
@@ -117,5 +116,4 @@ namespace ClinicalNotesSummarization.Application.Features.Diagnoses.Queries
             DiagnosedOn = diagnosedOn;
         }
     }
-
 }

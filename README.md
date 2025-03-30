@@ -17,20 +17,20 @@ This project is an AI-powered system that processes clinical notes, extracts key
 - **Application Layer**: Business logic and CQRS (Commands/Queries)
 - **Domain Layer**: Entities, Aggregates, Domain Events
 - **Infrastructure Layer**: Azure OpenAI, Speech-to-Text, MassTransit, RabbitMQ
-- **Database**: Azure SQL for structured EHR data
+- **Database**: Postgres for structured EHR data
 - **Frontend**: ASP.NET Core Blazor
 
 ## Technology Stack
 - **Backend**: ASP.NET Core, MediatR, MassTransit
 - **AI Services**: Azure OpenAI (GPT-4), Azure Speech-to-Text
 - **Messaging**: RabbitMQ
-- **Database**: Azure SQL, Entity Framework Core
-- **Frontend**: v
+- **Database**: Postgres, Entity Framework Core
+- **Frontend**: ASP.NET Core Blazor
 - **Containerization**: Docker, Kubernetes (Optional)
 
 ## Getting Started
 ### Prerequisites
-- .NET 8 SDK
+- .NET 9 SDK
 - Azure Account (for OpenAI and Speech-to-Text services)
 - RabbitMQ (for messaging)
 - SQL Server / Azure SQL
@@ -62,7 +62,6 @@ This project is an AI-powered system that processes clinical notes, extracts key
    ```
 6. Access the UI:
    - If using Blazor: `http://localhost:5000`
-   - If using React: `http://localhost:3000`
 
 ## Roadmap
 - ✅ Implement AI-powered summarization

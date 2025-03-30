@@ -35,8 +35,8 @@ namespace ClinicalNotesSummarization.Application.Mappings
 
             TypeAdapterConfig<CreateAllergyCommand, Allergy>
             .NewConfig()
-            .ConstructUsing(src => new Allergy(src.PatientId, 
-            src.Name, 
+            .ConstructUsing(src => new Allergy(src.PatientId,
+            src.Name,
             src.Type,
                 src.Severity,
                 src.Symptoms,
@@ -45,8 +45,8 @@ namespace ClinicalNotesSummarization.Application.Mappings
 
             TypeAdapterConfig<UpdateAllergyCommand, Allergy>
             .NewConfig()
-               .ConstructUsing(src => new Allergy(src.PatientId, 
-               src.Name, 
+               .ConstructUsing(src => new Allergy(src.PatientId,
+               src.Name,
                src.Type,
                 src.Severity,
                 src.Symptoms,
@@ -69,11 +69,6 @@ namespace ClinicalNotesSummarization.Application.Mappings
             TypeAdapterConfig<UpdateMedicalConditionCommand, MedicalCondition>
             .NewConfig()
             .ConstructUsing(src => new MedicalCondition(src.PatientId, src.Name, src.Description, src.Symptoms, src.Causes, src.Treatments, src.Severity));
-
-
-            // TypeAdapterConfig<Patient, GetPatientByIdQueryResult>
-            //.NewConfig()
-            //.ConstructUsing(src => new GetPatientByIdQueryResult(src.FirstName, src.LastName, src.DateOfBirth, src.Gender, src.PhoneNumber, src.Email, src.Address));
 
             TypeAdapterConfig.GlobalSettings.Compile(); // Compile for performance
         }

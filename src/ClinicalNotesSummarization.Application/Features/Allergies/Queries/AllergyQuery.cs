@@ -116,5 +116,4 @@ namespace ClinicalNotesSummarization.Application.Features.Allergies.Queries
             RecordedDate = recordedDate;
         }
     }
-
 }

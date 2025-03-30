@@ -49,8 +49,6 @@ internal class Program
 
         MappingConfig.RegisterMappings();
 
-   
-
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.

@@ -30,6 +30,4 @@ namespace ClinicalNotesSummarization.Application.Features.Patients.Commands
     {
         public Guid Id { get; set; }
     }
-
-
 }
