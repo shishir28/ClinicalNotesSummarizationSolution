@@ -30,6 +30,7 @@
     <ProjectReference Include="..\ClinicalNotesSummarization.Domain\ClinicalNotesSummarization.Domain.csproj" />
     <ProjectReference Include="..\ClinicalNotesSummarization.Infrastructure\ClinicalNotesSummarization.Infrastructure.csproj" />
     <ProjectReference Include="..\ClinicalNotesSummarization.SharedKernel\ClinicalNotesSummarization.SharedKernel.csproj" />
+    <ProjectReference Include="..\ClinicalNotesSummarization.Orchestration\ClinicalNotesSummarization.Orchestration.csproj" />
   </ItemGroup>
 
 </Project>

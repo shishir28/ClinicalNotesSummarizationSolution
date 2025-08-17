@@ -1,0 +1,10 @@
+{
+    "profiles": {
+        "ClinicalNotesSummarization.Orchestration": {
+            "commandName": "Project",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        }
+    }
+}

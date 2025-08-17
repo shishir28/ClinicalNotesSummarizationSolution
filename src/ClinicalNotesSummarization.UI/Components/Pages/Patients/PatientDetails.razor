@@ -13,7 +13,7 @@
 @if (patient != null)
 {
     <MudGrid>
-        <MudItem xs="12" sm="10">
+        <MudItem xs="12" sm="6">
             <MudPaper Class="pa-4 mt-4">
                 <MudForm ReadOnly="true" Spacing="2">
                     <MudTextField @bind-Value="@patient.FirstName" Label="First Name" ReadOnly="readOnly" />
@@ -26,10 +26,12 @@
                 </MudForm>
             </MudPaper>
             <MudPaper Class="pa-4 mt-4">
-                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(()=> Nav.NavigateTo($"/patients"))">Back To Patients</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@(() => Nav.NavigateTo($"/patients"))">
+                    Back To Patients</MudButton>
             </MudPaper>
             <MudPaper Class="pa-4 mt-4">
-                <MudTabs Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" @bind-ActivePanelIndex="activeIndex">
+                <MudTabs Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6"
+                    @bind-ActivePanelIndex="activeIndex">
                     <MudTabPanel Text="Medications">
                         <Medication PatientId="@Id" />
                     </MudTabPanel>
@@ -44,6 +46,29 @@
                     </MudTabPanel>
                 </MudTabs>
             </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6">
+            <!-- Floating chat button that opens the drawer -->
+            <MudIconButton Icon="@Icons.Material.Filled.Chat" Color="Color.Primary" OnClick="ToggleDrawer"
+                Style="position: absolute; top: 16px; right: 16px; z-index: 1200;" />
+
+            <MudDrawer Anchor="MudBlazor.Anchor.End" Open="@_drawerOpen" Elevation="4" Variant="DrawerVariant.Temporary"
+                Width="400px" Class="pa-4">
+                <MudDrawerHeader>
+                    <MudText Typo="Typo.h6">Chat</MudText>
+                    <MudSpacer />
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="ToggleDrawer" />
+                </MudDrawerHeader>
+
+                @if (patient != null)
+                {
+                    <div class="d-flex flex-column" style="gap:12px;">
+                        <ChatWindow TMessage="ChatMessage" Title="General Chat" CurrentPatient="patient"
+                            OnSend="@HandleGeneralSend" />
+                    </div>
+                }
+            </MudDrawer>
         </MudItem>
     </MudGrid>
 }
@@ -61,6 +86,13 @@ else
     private bool showForm = false;
     private bool readOnly = true;
 
+    List<ChatMessage> GeneralMessages { get; set; } = new();
+    List<ChatMessage> SummaryMessages { get; set; } = new();
+
+    // Drawer state
+    private bool _drawerOpen = false;
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+
     protected override async Task OnInitializedAsync()
     {
         var uri = new Uri(Nav.Uri);
@@ -73,5 +105,19 @@ else
     }
 
     private async Task LoadPatientData() =>
-        patient = await PatientService.GetPatientById(Guid.Parse(Id));
+    patient = await PatientService.GetPatientById(Guid.Parse(Id));
+
+    private Task HandleGeneralSend(string text)
+    {
+        @* GeneralMessages.Add(new ChatMessage { Text = text, FromAgent = false }); *@
+        return Task.CompletedTask;
+    }
+
+    private Task HandleSummarySend(string text)
+    {
+        // allow user to chat with the summarization agent (could forward to backend QA endpoint)
+
+        return Task.CompletedTask;
+    }
+
 }

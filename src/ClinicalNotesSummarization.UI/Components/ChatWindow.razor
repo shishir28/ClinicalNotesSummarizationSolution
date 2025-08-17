@@ -1,0 +1,129 @@
+@using ClinicalNotesSummarization.UI.Models
+@using ClinicalNotesSummarization.UI.Services
+@using System.Text.Json
+@typeparam TMessage
+@inject IChatService ChatService
+<div class="chat-window">
+    <MudPaper Class="pa-4">
+        <MudText Typo="Typo.h6">Agent Chat</MudText>
+        <div class="agent-selection">
+            <MudPaper Class="pa-4">
+                <MudText Typo="Typo.h6">Select an Agent</MudText>
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudButton OnClick="async () => await SelectAgent(defaultAgent)" Variant="Variant.Filled"
+                            Style="background-color: #c4c4c4; color: black;" FullWidth="true"
+                            Class="agent-message mb-2 button-height">
+                            <MudText Typo="Typo.body1" Style="color: black;">Summarize Patient</MudText>
+                        </MudButton>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </div>
+        <MudList T="ChatMessage">
+            @foreach (var msg in Messages)
+            {
+                <MudListItem T="ChatMessage">
+                    <div class="@(msg.IsUser ? "user-message" : "agent-message")">
+                        <MudText Style="white-space: pre-line;">@msg.Text</MudText>
+                    </div>
+                </MudListItem>
+            }
+        </MudList>
+
+        <MudTextField @bind-Value="userInput" Placeholder="Type a message..." @onkeyup="HandleKeyPress"
+            Immediate="true" />
+        <MudButton OnClick="SendMessage" Color="Color.Primary">Send</MudButton>
+    </MudPaper>
+</div>
+
+@code {
+
+    [Parameter] public PatientDto? CurrentPatient { get; set; }
+    [Parameter] public string Title { get; set; } = "Chat";
+    [Parameter] public List<ChatMessage> Messages { get; set; } = new();
+    [Parameter] public EventCallback<string> OnSend { get; set; }
+
+    // Default to collapsed as requested
+    [Parameter] public EventCallback<bool> OnCollapsedChanged { get; set; }
+
+    private string Draft { get; set; } = string.Empty;
+    private string userInput = "";
+    private string defaultAgent = "SummarizePatient";
+    protected override void OnInitialized()
+    {
+    }
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(Draft)) return;
+        var text = Draft.Trim();
+        Draft = string.Empty;
+        await OnSend.InvokeAsync(text);
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await SendMessage();
+    }
+
+    private async Task SelectAgent(string agentName)
+    {
+        //To Do: Implement agent selection logic
+        if (string.IsNullOrEmpty(agentName))
+        {
+            Messages.Add(new ChatMessage { Text = "Agent not found.", IsUser = true });
+            return;
+        }
+        if (CurrentPatient != null)
+            await LoadAgentResponseAsync(CurrentPatient, agentName);
+    }
+
+
+    private async Task LoadAgentResponseAsync(PatientDto currentPatient, string agentId)
+    {
+        var jsonResponse = await ChatService.SendMessageAsync(currentPatient, agentId);
+
+        try
+        {
+            var formattedResponse = FormatJsonElementResponse(jsonResponse);
+            Messages.Add(new ChatMessage { Text = $"Agent: \n {formattedResponse}", IsUser = false });
+
+        }
+        catch (Exception ex)
+        {
+            Messages.Add(new ChatMessage { Text = $"Agent: Error processing response - {ex.Message}", IsUser = false });
+        }
+    }
+
+    private string FormatJsonElementResponse(JsonElement jsonElement)
+    {
+        var dictionary = ParseJsonElementAsStringDictionary(jsonElement);
+        return string.Join("\n", dictionary.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
+    }
+
+    private static Dictionary<string, string> ParseJsonElementAsStringDictionary(JsonElement jsonElement)
+    {
+        var result = new Dictionary<string, string>();
+
+        if (jsonElement.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var property in jsonElement.EnumerateObject())
+            {
+                string key = property.Name;
+                string value = property.Value.ValueKind switch
+                {
+                    JsonValueKind.String => property.Value.GetString() ?? "",
+                    JsonValueKind.Number => property.Value.GetRawText(),
+                    JsonValueKind.True => "true",
+                    JsonValueKind.False => "false",
+                    JsonValueKind.Null => "null",
+                    _ => property.Value.GetRawText(),
+                };
+                result[key] = value;
+            }
+        }
+
+        return result;
+    }
+}

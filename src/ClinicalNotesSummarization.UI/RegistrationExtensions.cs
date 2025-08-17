@@ -16,8 +16,12 @@ namespace ClinicalNotesSummarization.UI
             services.AddHttpClient<IAllergyService, AllergyService>(c => c.BaseAddress = baseAddress);
             services.AddHttpClient<IDiagnosisService, DiagnosisService>(c => c.BaseAddress = baseAddress);
             services.AddHttpClient<IMedicalConditionService, MedicalConditionService>(c => c.BaseAddress = baseAddress);
+            services.AddHttpClient<IChatService, ChatService>(c => c.BaseAddress = baseAddress);
 
             services.AddScoped<INotificationService, NotificationService>();
+
+            // Summarization agent client
+
             return services;
         }
     }

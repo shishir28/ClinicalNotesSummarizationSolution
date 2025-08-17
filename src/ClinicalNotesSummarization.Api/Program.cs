@@ -2,6 +2,7 @@ using ClinicalNotesSummarization.Application;
 using ClinicalNotesSummarization.Application.Mappings;
 using ClinicalNotesSummarization.Infrastructure;
 using ClinicalNotesSummarization.Infrastructure.Persistence;
+using ClinicalNotesSummarization.Orchestration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -31,7 +32,7 @@ internal class Program
                 });
         });
         builder.Services.AddControllers();
-        
+
 
         // Add Swagger services
         builder.Services.AddEndpointsApiExplorer();
@@ -46,6 +47,7 @@ internal class Program
         });
         builder.Services.AddApplicationDependencies();
         builder.Services.AddInfrastructureDependencies();
+        builder.Services.AddOrchestrationServices(builder.Configuration);
 
         MappingConfig.RegisterMappings();
 

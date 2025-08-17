@@ -16,6 +16,7 @@ COPY ["src/ClinicalNotesSummarization.Application/ClinicalNotesSummarization.App
 COPY ["src/ClinicalNotesSummarization.Domain/ClinicalNotesSummarization.Domain.csproj", "src/ClinicalNotesSummarization.Domain/"]
 COPY ["src/ClinicalNotesSummarization.SharedKernel/ClinicalNotesSummarization.SharedKernel.csproj", "src/ClinicalNotesSummarization.SharedKernel/"]
 COPY ["src/ClinicalNotesSummarization.Infrastructure/ClinicalNotesSummarization.Infrastructure.csproj", "src/ClinicalNotesSummarization.Infrastructure/"]
+COPY ["src/ClinicalNotesSummarization.Orchestration/ClinicalNotesSummarization.Orchestration.csproj", "src/ClinicalNotesSummarization.Orchestration/"]
 RUN dotnet restore "./src/ClinicalNotesSummarization.Api/ClinicalNotesSummarization.Api.csproj"
 COPY . .
 WORKDIR "/src/src/ClinicalNotesSummarization.Api"

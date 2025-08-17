@@ -19,14 +19,23 @@ namespace ClinicalNotesSummarization.UI.Services
         public DiagnosisService(HttpClient httpClient) =>
             _httpClient = httpClient!;
 
-        public async Task<List<DiagnosisDto>> GetDiagnoses() =>
-          await _httpClient.GetFromJsonAsync<List<DiagnosisDto>>("api/diagnoses");
+        public async Task<List<DiagnosisDto>> GetDiagnoses()
+        {
+            var diagnoses = await _httpClient.GetFromJsonAsync<List<DiagnosisDto>>("api/diagnoses");
+            return diagnoses ?? [];
+        }
 
-        public async Task<DiagnosisDto> GetDiagnosisById(Guid id) =>
-            await _httpClient.GetFromJsonAsync<DiagnosisDto>($"api/diagnoses/{id}");
+        public async Task<DiagnosisDto> GetDiagnosisById(Guid id)
+        {
+            var diagnosis = await _httpClient.GetFromJsonAsync<DiagnosisDto>($"api/diagnoses/{id}") ?? throw new InvalidOperationException($"Diagnosis with id {id} not found.");
+            return diagnosis;
+        }
 
-        public async Task<List<DiagnosisDto>> GetDiagnosesByPatientId(Guid patientId) =>
-          await _httpClient.GetFromJsonAsync<List<DiagnosisDto>>("api/diagnoses/patient/{patientId}");
+        public async Task<List<DiagnosisDto>> GetDiagnosesByPatientId(Guid patientId)
+        {
+            var diagnoses = await _httpClient.GetFromJsonAsync<List<DiagnosisDto>>($"api/diagnoses/patient/{patientId}");
+            return diagnoses ?? [];
+        }
 
         public async Task AddDiagnosis(DiagnosisDto medication) =>
             await _httpClient.PostAsJsonAsync("api/diagnoses", medication);
