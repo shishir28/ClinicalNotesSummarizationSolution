@@ -1,7 +1,60 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Clinical Notes Summarizer</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Clinical Notes Summarization Dashboard</h1>
 
-Welcome to your new app.
+<div style="display:flex;gap:24px;align-items:flex-start;">
+    <div style="flex:1;max-width:640px;">
+        <p>
+            AI-powered system that processes clinical notes, extracts key medical insights, and provides
+            concise, structured summaries to help clinicians review patient information faster.
+        </p>
+
+        <h2>Quick Actions</h2>
+        <ul>
+            <li><strong>Summarize Latest Note</strong> — Generate a clinical summary for the selected note.</li>
+            <li><strong>Ask a Question (RAG)</strong> — Ask clinical questions over patient notes using
+                Retrieval-Augmented Generation.</li>
+            <li><strong>Ingest &amp; Index</strong> — Reprocess legacy notes for embeddings and similarity search.</li>
+        </ul>
+
+        <h2>Features</h2>
+        <ul>
+            <li>Speech-to-Text ingestion (Azure Speech-to-Text)</li>
+            <li>AI-powered summarization (Azure OpenAI, or locally-hosted models via Ollama integrated with Semantic
+                Kernel)</li>
+            <li>Medical entity extraction (medications, allergies, diagnoses, vitals)</li>
+            <li>Event-driven processing for scalable workflows (MassTransit &amp; RabbitMQ)</li>
+        </ul>
+
+        <h2>Architecture</h2>
+        <p>
+            Layered architecture: API (ASP.NET Core) → Application (CQRS / MediatR) → Domain (entities &amp; events) →
+            Infrastructure (persistence, AI connectors) → Blazor UI.
+        </p>
+
+        <h2>Get Started</h2>
+        <ol>
+            <li>Install .NET 9+ and restore packages: <code>dotnet restore</code>.</li>
+            <li>Build the solution: <code>dotnet build</code> or use the provided VS Code tasks.</li>
+            <li>Configure AI and database connection strings in <code>appsettings.Development.json</code>.</li>
+            <li>Run the API and UI from VS Code using the launch configurations or tasks.</li>
+        </ol>
+
+        <p style="font-size:0.9em;color:#666;">
+            Note: This project may send data to external AI services. Ensure PHI is handled according to your
+            organization's compliance and privacy policies. Consider using local models (Ollama) or Key Vault for
+            secrets.
+        </p>
+
+        <p>
+            For more details refer to the project <a href="/README.md">README</a> in the repository root.
+        </p>
+    </div>
+
+    <div style="flex:0 0 520px;">
+        <img src="images/clinicalsummary.png" alt="Clinical notes summarization illustration"
+            style="max-width:100%;border-radius:8px;box-shadow:0 8px 20px rgba(2,6,23,0.06);" />
+    </div>
+</div>
