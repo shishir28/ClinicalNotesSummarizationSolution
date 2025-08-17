@@ -1,0 +1,48 @@
+{
+    // Auto-generated launch configurations for debugging the API and UI projects.
+    // If your target framework differs (net6.0/net7.0/etc.) update the `program` paths accordingly.
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug ClinicalNotesSummarization.Api",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/ClinicalNotesSummarization.Api/bin/Debug/net9.0/ClinicalNotesSummarization.Api.dll",
+            "cwd": "${workspaceFolder}/src/ClinicalNotesSummarization.Api",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "logging": {
+                "moduleLoad": false
+            }
+        },
+        {
+            "name": "Debug ClinicalNotesSummarization.UI",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/ClinicalNotesSummarization.UI/bin/Debug/net9.0/ClinicalNotesSummarization.UI.dll",
+            "cwd": "${workspaceFolder}/src/ClinicalNotesSummarization.UI",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "logging": {
+                "moduleLoad": false
+            }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Debug API + UI",
+            "configurations": [
+                "Debug ClinicalNotesSummarization.Api",
+                "Debug ClinicalNotesSummarization.UI"
+            ]
+        }
+    ]
+}
