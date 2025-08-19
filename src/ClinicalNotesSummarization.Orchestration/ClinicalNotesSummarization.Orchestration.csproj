@@ -18,4 +18,15 @@
     <ProjectReference Include="..\ClinicalNotesSummarization.SharedKernel\ClinicalNotesSummarization.SharedKernel.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Plugins\" />
+    <Folder Include="Prompts\Summarization\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Prompts\Summarization\summaryPrompt.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

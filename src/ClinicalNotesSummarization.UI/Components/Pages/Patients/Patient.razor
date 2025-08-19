@@ -58,7 +58,10 @@
 
     private void NavigateToPatient(object patient)
     {
-        var patientId = (patient as PatientDto).Id;
+        var patientDto = patient as PatientDto;
+        if (patientDto == null)
+            return;
+        var patientId = patientDto.Id;
         Nav.NavigateTo($"/patient/{patientId}");
     }
 

@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ClinicalNotesSummarization.Orchestration.Services;
 using ClinicalNotesSummarization.Application.Features.AI;
+using ClinicalNotesSummarization.Orchestration.Plugins;
 
 namespace ClinicalNotesSummarization.Orchestration;
 
@@ -12,7 +13,9 @@ public static class RegistrationExtensions
         // Register OpenAI settings read from configuration
         var openAiSettings = CreateOpenAiSettings(configuration);
         services.AddSingleton(openAiSettings);
+        services.AddTransient<IPatientPlugin, PatientRepositoryPlugin>();
         services.AddSingleton(KernelFactory.CreateKernel(openAiSettings));
+        services.AddTransient<ITextGenerator, DefaultTextGenerator>();
 
         // // Register orchestration implementations for application interfaces
         services.AddScoped<ISummarizationService, SemanticSummarizationService>();
