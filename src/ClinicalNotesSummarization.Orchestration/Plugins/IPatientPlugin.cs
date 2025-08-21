@@ -8,14 +8,14 @@ public interface IPatientPlugin
     Task<JsonElement> GetPatientAsync(Guid patientId, CancellationToken cancellationToken = default);
 
     // // Return medications array JSON
-    // Task<JsonElement> GetMedicationsAsync(Guid patientId, CancellationToken cancellationToken = default);
+    Task<JsonElement> GetMedicationsAsync(Guid patientId, CancellationToken cancellationToken = default);
 
     // // Return conditions array JSON
-    // Task<JsonElement> GetConditionsAsync(Guid patientId, CancellationToken cancellationToken = default);
+    Task<JsonElement> GetConditionsAsync(Guid patientId, CancellationToken cancellationToken = default);
 
     // // Return diagnoses array JSON
-    // Task<JsonElement> GetDiagnosesAsync(Guid patientId, CancellationToken cancellationToken = default);
+    Task<JsonElement> GetDiagnosesAsync(Guid patientId, CancellationToken cancellationToken = default);
 
     // // Return allergies array JSON
-    // Task<JsonElement> GetAllergiesAsync(Guid patientId, CancellationToken cancellationToken = default);
+    Task<JsonElement> GetAllergiesAsync(Guid patientId, CancellationToken cancellationToken = default);
 }

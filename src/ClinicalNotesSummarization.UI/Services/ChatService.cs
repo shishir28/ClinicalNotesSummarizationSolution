@@ -1,8 +1,5 @@
-using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using ClinicalNotesSummarization.UI.Models;
-
 
 namespace ClinicalNotesSummarization.UI.Services;
 

@@ -8,6 +8,6 @@ public interface ISummarizationService
 public class SummaryResultDto
 {
     public string SummaryText { get; set; } = string.Empty;
-    public IEnumerable<string> SourcePassages { get; set; } = [];
-    public DateTime GeneratedAt { get; set; }
+    // public IEnumerable<string> SourcePassages { get; set; } = [];
+    // public DateTime GeneratedAt { get; set; }
 }

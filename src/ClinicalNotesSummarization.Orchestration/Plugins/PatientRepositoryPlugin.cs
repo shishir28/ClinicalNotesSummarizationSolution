@@ -48,56 +48,56 @@ public class PatientRepositoryPlugin : IPatientPlugin
         return json;
     }
 
-    // public async Task<JsonElement> GetMedicationsAsync(Guid patientId, CancellationToken cancellationToken = default)
-    // {
-    //     var meds = await _medicationRepository.GetByPatientIdAsync(patientId);
-    //     var json = JsonSerializer.SerializeToElement(meds.Select(m => new {
-    //         name = m.Name,
-    //         dosage = m.Dosage,
-    //         frequency = m.Frequency,
-    //         prescribingDoctor = m.PrescribingDoctor,
-    //         startDate = m.StartDate,
-    //         endDate = m.EndDate
-    //     }));
-    //     return json;
-    // }
+    public async Task<JsonElement> GetMedicationsAsync(Guid patientId, CancellationToken cancellationToken = default)
+    {
+        var meds = await _medicationRepository.GetByPatientIdAsync(patientId);
+        var json = JsonSerializer.SerializeToElement(meds.Select(m => new {
+            name = m.Name,
+            dosage = m.Dosage,
+            frequency = m.Frequency,
+            prescribingDoctor = m.PrescribingDoctor,
+            startDate = m.StartDate,
+            endDate = m.EndDate
+        }));
+        return json;
+    }
 
-    // public async Task<JsonElement> GetConditionsAsync(Guid patientId, CancellationToken cancellationToken = default)
-    // {
-    //     var conds = await _condition_repository.GetByPatientIdAsync(patientId);
-    //     var json = JsonSerializer.SerializeToElement(conds.Select(c => new {
-    //         name = c.Name,
-    //         description = c.Description,
-    //         severity = c.Severity,
-    //         treatments = c.Treatments
-    //     }));
-    //     return json;
-    // }
+    public async Task<JsonElement> GetConditionsAsync(Guid patientId, CancellationToken cancellationToken = default)
+    {
+        var conds = await _condition_repository.GetByPatientIdAsync(patientId);
+        var json = JsonSerializer.SerializeToElement(conds.Select(c => new {
+            name = c.Name,
+            description = c.Description,
+            severity = c.Severity,
+            treatments = c.Treatments
+        }));
+        return json;
+    }
 
-    // public async Task<JsonElement> GetDiagnosesAsync(Guid patientId, CancellationToken cancellationToken = default)
-    // {
-    //     var diags = await _diagnosis_repository.GetByPatientIdAsync(patientId);
-    //     var json = JsonSerializer.SerializeToElement(diags.Select(d => new {
-    //         code = d.Code,
-    //         description = d.Description,
-    //         severity = d.Severity,
-    //         prescribingDoctor = d.PrescribingDoctor,
-    //         diagnosedOn = d.DiagnosedOn
-    //     }));
-    //     return json;
-    // }
+    public async Task<JsonElement> GetDiagnosesAsync(Guid patientId, CancellationToken cancellationToken = default)
+    {
+        var diags = await _diagnosis_repository.GetByPatientIdAsync(patientId);
+        var json = JsonSerializer.SerializeToElement(diags.Select(d => new {
+            code = d.Code,
+            description = d.Description,
+            severity = d.Severity,
+            prescribingDoctor = d.PrescribingDoctor,
+            diagnosedOn = d.DiagnosedOn
+        }));
+        return json;
+    }
 
-    // public async Task<JsonElement> GetAllergiesAsync(Guid patientId, CancellationToken cancellationToken = default)
-    // {
-    //     var alls = await _allergy_repository.GetByPatientIdAsync(patientId);
-    //     var json = JsonSerializer.SerializeToElement(alls.Select(a => new {
-    //         name = a.Name,
-    //         type = a.Type,
-    //         severity = a.Severity,
-    //         symptoms = a.Symptoms
-    //     }));
-    //     return json;
-    // }
+    public async Task<JsonElement> GetAllergiesAsync(Guid patientId, CancellationToken cancellationToken = default)
+    {
+        var alls = await _allergy_repository.GetByPatientIdAsync(patientId);
+        var json = JsonSerializer.SerializeToElement(alls.Select(a => new {
+            name = a.Name,
+            type = a.Type,
+            severity = a.Severity,
+            symptoms = a.Symptoms
+        }));
+        return json;
+    }
 
     private static JsonElement EmptyJson() => JsonDocument.Parse("{}").RootElement.Clone();
 }

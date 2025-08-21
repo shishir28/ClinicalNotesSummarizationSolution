@@ -3,7 +3,12 @@ You are a concise, clinically‑focused summarization assistant. Produce a clear
 
 INPUT:
 - patientId: {{patientId}}
-- patient: {{patient}}            # JSON object with patient demographics
+- patient: {{patient}}    
+- medications: {{medications}}
+- conditions: {{conditions}}    
+- diagnoses: {{diagnoses}}
+- allergies: {{allergies}}    
+        # JSON object with patient demographics
 
 INSTRUCTIONS:
 1. Read the patient demographics, then create a single-line patient header:
