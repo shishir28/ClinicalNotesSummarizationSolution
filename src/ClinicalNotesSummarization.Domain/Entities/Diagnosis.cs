@@ -13,6 +13,9 @@ namespace ClinicalNotesSummarization.Domain.Entities
         public string Notes { get; set; }
 
         public DateTimeOffset DiagnosedOn { get; private set; }
+        // Embedding metadata
+        public string? EmbeddingHash { get; set; }
+        public DateTimeOffset? EmbeddingIndexedAt { get; set; }
 
         private Diagnosis() { } // For EF Core
 

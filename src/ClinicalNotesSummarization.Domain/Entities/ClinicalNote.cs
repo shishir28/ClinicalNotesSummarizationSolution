@@ -11,6 +11,10 @@ namespace ClinicalNotesSummarization.Domain.Entities
         public string OriginalText { get; set; }
         public DateTimeOffset CreatedAt { get; set; } = DateTime.UtcNow;
 
+        // Embedding metadata
+        public string? EmbeddingHash { get; set; }
+        public DateTimeOffset? EmbeddingIndexedAt { get; set; }
+
         // Navigation Property
         public Patient Patient { get; set; }
 

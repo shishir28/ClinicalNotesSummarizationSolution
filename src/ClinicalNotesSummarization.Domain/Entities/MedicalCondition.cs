@@ -14,6 +14,9 @@ namespace ClinicalNotesSummarization.Domain.Entities
 
         // Navigation Property
         public Patient Patient { get; set; }
+        // Embedding metadata
+        public string? EmbeddingHash { get; set; }
+        public DateTimeOffset? EmbeddingIndexedAt { get; set; }
 
         public MedicalCondition(Guid patientId,
         string name,
