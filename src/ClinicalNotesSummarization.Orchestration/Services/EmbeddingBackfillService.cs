@@ -67,11 +67,11 @@ namespace ClinicalNotesSummarization.Orchestration.Services
             await ProcessClinicalNotesAsync(db, embeddingProvider, cancellationToken);
 
             // process other tables similarly
-            await ProcessAllergiesAsync(db, cancellationToken);
-            await ProcessAppointmentsAsync(db, cancellationToken);
-            await ProcessDiagnosesAsync(db, cancellationToken);
-            await ProcessMedicalConditionsAsync(db, cancellationToken);
-            await ProcessMedicationsAsync(db, cancellationToken);
+            await ProcessAllergiesAsync(db, embeddingProvider, cancellationToken);
+            await ProcessAppointmentsAsync(db, embeddingProvider, cancellationToken);
+            await ProcessDiagnosesAsync(db, embeddingProvider, cancellationToken);
+            await ProcessMedicalConditionsAsync(db, embeddingProvider, cancellationToken);
+            await ProcessMedicationsAsync(db, embeddingProvider, cancellationToken);
         }
 
         private async Task ProcessClinicalNotesAsync(ClinicalNotesDbContext db, IEmbeddingProvider embeddingProvider, CancellationToken cancellationToken)
@@ -153,13 +153,141 @@ namespace ClinicalNotesSummarization.Orchestration.Services
                 }
             }
         }
+        // Generic processor to reduce duplication. Caller provides:
+        // - orderedQuery: the ordered IQueryable for batch reads
+        // - getEmbeddingHash / setEmbeddingHash / setEmbeddingIndexedAt: metadata accessors
+        // - extractFields: returns field name + text pairs to embed
+        // - entityType/getEntityId/getPatientId: payload data
+        private async Task ProcessEntityAsync<T>(ClinicalNotesDbContext db, IQueryable<T> orderedQuery,
+            Func<T, string?> getEmbeddingHash,
+            Action<T, string> setEmbeddingHash,
+            Action<T, DateTimeOffset> setEmbeddingIndexedAt,
+            Func<T, IEnumerable<(string FieldName, string Text)>> extractFields,
+            string entityType,
+            Func<T, Guid> getEntityId,
+            Func<T, Guid> getPatientId,
+            IEmbeddingProvider embeddingProvider,
+            CancellationToken cancellationToken)
+            where T : class
+        {
+            const int batchSize = 50;
+            var total = await orderedQuery.CountAsync(cancellationToken);
+            _logger.LogInformation("Processing {Total} {EntityType} in batches of {BatchSize}", total, entityType, batchSize);
 
-        // ... similar skeletons for other tables (simplified)
-        private Task ProcessAllergiesAsync(ClinicalNotesDbContext db, CancellationToken cancellationToken) => Task.CompletedTask;
-        private Task ProcessAppointmentsAsync(ClinicalNotesDbContext db, CancellationToken cancellationToken) => Task.CompletedTask;
-        private Task ProcessDiagnosesAsync(ClinicalNotesDbContext db, CancellationToken cancellationToken) => Task.CompletedTask;
-        private Task ProcessMedicalConditionsAsync(ClinicalNotesDbContext db, CancellationToken cancellationToken) => Task.CompletedTask;
-        private Task ProcessMedicationsAsync(ClinicalNotesDbContext db, CancellationToken cancellationToken) => Task.CompletedTask;
+            for (var skip = 0; skip < total; skip += batchSize)
+            {
+                var batch = await orderedQuery.Skip(skip).Take(batchSize).ToListAsync(cancellationToken);
+                var points = new List<QdrantPoint>();
+
+                foreach (var item in batch)
+                {
+                    foreach (var (FieldName, Text) in extractFields(item))
+                    {
+                        var text = Text ?? string.Empty;
+                        if (string.IsNullOrWhiteSpace(text)) continue;
+                        var hash = Sha256Hex(text);
+                        if (getEmbeddingHash(item) != hash)
+                        {
+                            var embedding = await embeddingProvider.GetEmbeddingsAsync(new[] { text });
+                            var vec = embedding.First();
+                            var payload = new QdrantPayload
+                            {
+                                EntityType = entityType,
+                                EntityId = getEntityId(item),
+                                PatientId = getPatientId(item),
+                                FieldSource = FieldName,
+                                ChunkIndex = 0,
+                                TextHash = hash,
+                                CreatedAt = DateTimeOffset.UtcNow,
+                                SourceSnippet = text.Length > 200 ? text[..200] : text,
+                                OriginalLength = text.Length
+                            };
+                            points.Add(new QdrantPoint($"{entityType}:{getEntityId(item)}:{FieldName}:0", vec, payload));
+
+                            setEmbeddingHash(item, hash);
+                            setEmbeddingIndexedAt(item, DateTimeOffset.UtcNow);
+                        }
+                    }
+                }
+
+                if (points.Any())
+                {
+                    await _qdrant.UpsertPointsAsync(points);
+                    await db.SaveChangesAsync(cancellationToken);
+                }
+            }
+        }
+
+        // Typed wrappers that call the generic processor for each domain entity
+        private Task ProcessAllergiesAsync(ClinicalNotesDbContext db, IEmbeddingProvider provider, CancellationToken cancellationToken)
+            => ProcessEntityAsync<Domain.Entities.Allergy>(
+                db,
+                db.Allergies.OrderBy(a => a.Id),
+                a => a.EmbeddingHash,
+                (a, v) => a.EmbeddingHash = v,
+                (a, t) => a.EmbeddingIndexedAt = t,
+                a => new[] { ("Name", a.Name), ("Type", a.Type), ("Severity", a.Severity), ("Symptoms", a.Symptoms), ("CommonTriggers", a.CommonTriggers) },
+                "Allergy",
+                a => a.Id,
+                a => a.PatientId,
+                provider,
+                cancellationToken);
+
+        private Task ProcessAppointmentsAsync(ClinicalNotesDbContext db, IEmbeddingProvider provider, CancellationToken cancellationToken)
+            => ProcessEntityAsync<Domain.Entities.Appointment>(
+                db,
+                db.Appointments.OrderBy(a => a.Id),
+                a => a.EmbeddingHash,
+                (a, v) => a.EmbeddingHash = v,
+                (a, t) => a.EmbeddingIndexedAt = t,
+                a => new[] { ("DoctorName", a.DoctorName), ("Notes", a.Notes) },
+                "Appointment",
+                a => a.Id,
+                a => a.PatientId,
+                provider,
+                cancellationToken);
+
+        private Task ProcessDiagnosesAsync(ClinicalNotesDbContext db, IEmbeddingProvider provider, CancellationToken cancellationToken)
+            => ProcessEntityAsync<Domain.Entities.Diagnosis>(
+                db,
+                db.Diagnoses.OrderBy(d => d.Id),
+                d => d.EmbeddingHash,
+                (d, v) => d.EmbeddingHash = v,
+                (d, t) => d.EmbeddingIndexedAt = t,
+                d => new[] { ("Code", d.Code), ("Description", d.Description), ("Notes", d.Notes), ("PrescribingDoctor", d.PrescribingDoctor), ("Severity", d.Severity) },
+                "Diagnosis",
+                d => d.Id,
+                d => d.PatientId,
+                provider,
+                cancellationToken);
+
+        private Task ProcessMedicalConditionsAsync(ClinicalNotesDbContext db, IEmbeddingProvider provider, CancellationToken cancellationToken)
+            => ProcessEntityAsync<Domain.Entities.MedicalCondition>(
+                db,
+                db.MedicalConditions.OrderBy(m => m.Id),
+                m => m.EmbeddingHash,
+                (m, v) => m.EmbeddingHash = v,
+                (m, t) => m.EmbeddingIndexedAt = t,
+                m => new[] { ("Name", m.Name), ("Description", m.Description), ("Symptoms", m.Symptoms), ("Causes", m.Causes), ("Treatments", m.Treatments) },
+                "MedicalCondition",
+                m => m.Id,
+                m => m.PatientId,
+                provider,
+                cancellationToken);
+
+        private Task ProcessMedicationsAsync(ClinicalNotesDbContext db, IEmbeddingProvider provider, CancellationToken cancellationToken)
+            => ProcessEntityAsync<Domain.Entities.Medication>(
+                db,
+                db.Medications.OrderBy(m => m.Id),
+                m => m.EmbeddingHash,
+                (m, v) => m.EmbeddingHash = v,
+                (m, t) => m.EmbeddingIndexedAt = t,
+                m => new[] { ("Name", m.Name), ("Dosage", m.Dosage), ("Frequency", m.Frequency), ("PrescribingDoctor", m.PrescribingDoctor) },
+                "Medication",
+                m => m.Id,
+                m => m.PatientId,
+                provider,
+                cancellationToken);
 
         // Very naive chunker: split on paragraphs, or fallback to fixed-size window by characters
         private static List<string> ChunkText(string text, int maxChars = 3000)

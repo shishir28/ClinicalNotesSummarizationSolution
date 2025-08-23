@@ -48,8 +48,14 @@ internal class Program
         builder.Services.AddApplicationDependencies();
         builder.Services.AddInfrastructureDependencies();
         builder.Services.AddOrchestrationServices(builder.Configuration);
-        // Start the embedding backfill hosted service. It uses DI-scoped services internally.
-        builder.Services.AddHostedService<ClinicalNotesSummarization.Orchestration.Services.EmbeddingBackfillService>();
+
+        // Register the embedding backfill hosted service only when explicitly enabled in configuration.
+        // This prevents running the potentially long-running backfill on every API startup.
+        var backfillEnabled = builder.Configuration.GetValue<bool>("Backfill:Enabled", false);
+        if (backfillEnabled)
+        {
+            builder.Services.AddHostedService<ClinicalNotesSummarization.Orchestration.Services.EmbeddingBackfillService>();
+        }
 
         MappingConfig.RegisterMappings();
 
