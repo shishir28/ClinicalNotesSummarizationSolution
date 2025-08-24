@@ -19,6 +19,7 @@ public static class RegistrationExtensions
 
         // // Register orchestration implementations for application interfaces
         services.AddScoped<ISummarizationService, SemanticSummarizationService>();
+        services.AddScoped<IPatientChatService, PatientChatService>();
 
         return services;
     }

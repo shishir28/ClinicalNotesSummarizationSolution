@@ -14,6 +14,7 @@ namespace ClinicalNotesSummarization.UI.Services
         Task<List<AllergyDto>> GeAllergiesByPatientId(Guid patientId);
         Task<List<DiagnosisDto>> GeDiagnosesByPatientId(Guid patientId);
         Task<List<MedicalConditionDto>> GeMedicalConditionsByPatientId(Guid patientId);
+        Task<object> SearchPatientsAsync(string query, int topKPatients = 5, int topKDocs = 8);
     }
 
     public class PatientService : IPatientService
@@ -56,5 +57,14 @@ namespace ClinicalNotesSummarization.UI.Services
             await _httpClient.GetFromJsonAsync<List<MedicalConditionDto>>(
                 $"api/patients/{patientId}/medicalconditions"
             ) ?? [];
+
+        public async Task<object> SearchPatientsAsync(string query, int topKPatients = 5, int topKDocs = 8)
+        {
+            var body = new { Message = query, TopKPatients = topKPatients, TopKDocs = topKDocs };
+            var res = await _httpClient.PostAsJsonAsync("api/chat/search/patients", body);
+            if (!res.IsSuccessStatusCode) return new { error = await res.Content.ReadAsStringAsync() };
+            var data = await res.Content.ReadFromJsonAsync<object>();
+            return data ?? new object();
+        }
     }
 }

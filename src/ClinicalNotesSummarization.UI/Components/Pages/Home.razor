@@ -1,60 +1,161 @@
 ﻿@page "/"
+@rendermode InteractiveServer
+@inject ClinicalNotesSummarization.UI.Services.IPatientService PatientService
+@inject NavigationManager Nav
 
+<MudPopoverProvider />
 <PageTitle>Clinical Notes Summarizer</PageTitle>
 
-<h1>Clinical Notes Summarization Dashboard</h1>
-
-<div style="display:flex;gap:24px;align-items:flex-start;">
-    <div style="flex:1;max-width:640px;">
-        <p>
-            AI-powered system that processes clinical notes, extracts key medical insights, and provides
-            concise, structured summaries to help clinicians review patient information faster.
-        </p>
-
-        <h2>Quick Actions</h2>
-        <ul>
-            <li><strong>Summarize Latest Note</strong> — Generate a clinical summary for the selected note.</li>
-            <li><strong>Ask a Question (RAG)</strong> — Ask clinical questions over patient notes using
-                Retrieval-Augmented Generation.</li>
-            <li><strong>Ingest &amp; Index</strong> — Reprocess legacy notes for embeddings and similarity search.</li>
-        </ul>
-
-        <h2>Features</h2>
-        <ul>
-            <li>Speech-to-Text ingestion (Azure Speech-to-Text)</li>
-            <li>AI-powered summarization (Azure OpenAI, or locally-hosted models via Ollama integrated with Semantic
-                Kernel)</li>
-            <li>Medical entity extraction (medications, allergies, diagnoses, vitals)</li>
-            <li>Event-driven processing for scalable workflows (MassTransit &amp; RabbitMQ)</li>
-        </ul>
-
-        <h2>Architecture</h2>
-        <p>
-            Layered architecture: API (ASP.NET Core) → Application (CQRS / MediatR) → Domain (entities &amp; events) →
-            Infrastructure (persistence, AI connectors) → Blazor UI.
-        </p>
-
-        <h2>Get Started</h2>
-        <ol>
-            <li>Install .NET 9+ and restore packages: <code>dotnet restore</code>.</li>
-            <li>Build the solution: <code>dotnet build</code> or use the provided VS Code tasks.</li>
-            <li>Configure AI and database connection strings in <code>appsettings.Development.json</code>.</li>
-            <li>Run the API and UI from VS Code using the launch configurations or tasks.</li>
-        </ol>
-
-        <p style="font-size:0.9em;color:#666;">
-            Note: This project may send data to external AI services. Ensure PHI is handled according to your
-            organization's compliance and privacy policies. Consider using local models (Ollama) or Key Vault for
-            secrets.
-        </p>
-
-        <p>
-            For more details refer to the project <a href="/README.md">README</a> in the repository root.
-        </p>
+<div style="flex:1;">
+    <div style="margin-bottom:18px;">
+        <input @bind="searchQuery" placeholder="Search medications or diagnoses or medical conditions or medications or allergies or clinical content..."
+            style="width:70%;padding:8px;border-radius:4px;border:1px solid #ccc;" />
+        <MudButton OnClick="@(async () => await RunSearch(searchQuery))" style="margin-left:8px;padding:8px
+                    12px;border-radius:4px;background:#2563eb;color:white;border:none;">Search</MudButton>
     </div>
 
-    <div style="flex:0 0 520px;">
-        <img src="images/clinicalsummary.png" alt="Clinical notes summarization illustration"
-            style="max-width:100%;border-radius:8px;box-shadow:0 8px 20px rgba(2,6,23,0.06);" />
+    <div style="margin-bottom:16px;">
+
+        @if (patients != null && patients.Any())
+        {
+            <h3>Search results</h3>
+
+            <MudTable Items="patients" Hover="true" SortLabel="Sort By" Elevation="0" AllowUnsorted="false">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Gender</MudTh>
+                    <MudTh>DOB</MudTh>
+                    <MudTh>PhoneNumber</MudTh>
+                    <MudTh>Email</MudTh>
+                    <MudTh>Address</MudTh>
+                    <MudTh>Score</MudTh>
+                    <MudTh>Actions</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.FullName</MudTd>
+                    <MudTd>@context.Gender</MudTd>
+                    <MudTd>@context.DobDisplay</MudTd>
+                    <MudTd>@context.Phone</MudTd>
+                    <MudTd>@context.Email</MudTd>
+                    <MudTd>@context.Address</MudTd>
+                    <MudTd>@context.Score</MudTd>
+                    <MudTd>
+                        <MudButton Color="Color.Primary" StartIcon="@Icons.Material.Filled.Pageview"
+                            OnClick="@(() => NavigateToPatient(context.Id))">View </MudButton>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
     </div>
 </div>
+
+
+@code {
+    private string searchQuery = string.Empty;
+    private object? searchResults;
+    private bool isSearching = false;
+
+    private List<DisplayPatient> patients = new();
+
+    private async Task RunSearch(string searchQuery)
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery)) return;
+        isSearching = true;
+        try
+        {
+            searchResults = await PatientService.SearchPatientsAsync(searchQuery);
+
+            // attempt to extract distinct patients
+            patients = new List<DisplayPatient>();
+            try
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(searchResults);
+                var opts = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var raw = System.Text.Json.JsonSerializer.Deserialize<List<RawSearchResult>>(json, opts);
+                if (raw != null)
+                {
+                    patients = raw
+                    .Where(r => r.Patient != null && r.Score > 0.5) // filter out null patients and negative scores
+                    .Select(r => new DisplayPatient
+                    {
+                        Id = TryParseGuid(r.Patient.Id),
+                        FirstName = r.Patient.FirstName ?? string.Empty,
+                        LastName = r.Patient.LastName ?? string.Empty,
+                        Dob = TryParseDate(r.Patient.Dob),
+                        Gender = r.Patient.Gender ?? string.Empty,
+                        Phone = r.Patient.Phone ?? string.Empty,
+                        Email = r.Patient.Email ?? string.Empty,
+                        Address = r.Patient.Address ?? string.Empty,
+                        Score = r.Score
+                    })
+                    .GroupBy(p => p.Id)
+                    .Select(g => g.OrderByDescending(x => x.Score).First())
+                    .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                // if parsing fails, keep patients empty and show raw results elsewhere
+            }
+        }
+        finally
+        {
+            isSearching = false;
+        }
+    }
+
+    private void NavigateToPatient(Guid patientId)
+    {
+
+        if (patientId == null || patientId == Guid.Empty)
+            return;
+
+        Nav.NavigateTo($"/patient/{patientId}");
+    }
+    private static Guid TryParseGuid(string? id)
+    {
+        if (Guid.TryParse(id, out var g)) return g;
+        return Guid.Empty;
+    }
+
+    private static DateTime? TryParseDate(string? s)
+    {
+        if (DateTime.TryParse(s, out var dt)) return dt;
+        return null;
+    }
+
+    private class RawSearchResult
+    {
+        public string? PatientId { get; set; }
+        public double Score { get; set; }
+        public RawPatient? Patient { get; set; }
+    }
+
+    private class RawPatient
+    {
+        public string? Id { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Dob { get; set; }
+        public string? Gender { get; set; }
+        public string? Phone { get; set; }
+        public string? Email { get; set; }
+        public string? Address { get; set; }
+    }
+
+    private class DisplayPatient
+    {
+        public Guid Id { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public DateTime? Dob { get; set; }
+        public string Gender { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public double Score { get; set; }
+
+        public string FullName => $"{FirstName} {LastName}".Trim();
+        public string DobDisplay => Dob.HasValue ? Dob.Value.ToString("yyyy-MM-dd") : string.Empty;
+    }
+}

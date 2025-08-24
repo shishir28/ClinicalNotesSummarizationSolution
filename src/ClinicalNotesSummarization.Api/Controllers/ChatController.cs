@@ -6,7 +6,7 @@ namespace ClinicalNotesSummarization.Api.Controllers
 {
     public class PatientChatRequest
     {
-        public string AgentKind { get; set; }
+        public string AgentKind { get; set; } = string.Empty;
     }
 
     [ApiController]
@@ -14,9 +14,14 @@ namespace ClinicalNotesSummarization.Api.Controllers
     public class ChatController : ControllerBase
     {
         private readonly ISummarizationService _summarizationService;
+        private readonly IPatientChatService _patientChatService;
 
-        public ChatController(ISummarizationService summarizationService) =>
+        public ChatController(ISummarizationService summarizationService,
+            IPatientChatService patientChatService)
+        {
             _summarizationService = summarizationService;
+            _patientChatService = patientChatService;
+        }
 
         [HttpPost("{patientId}")]
         [SwaggerOperation(Summary = "Gets a patient details")]
@@ -39,33 +44,46 @@ namespace ClinicalNotesSummarization.Api.Controllers
             return Ok(response);
         }
 
-        // [HttpPost("messages")]
-        // [SwaggerOperation(Summary = "Send a message to the chat system")]
-        // [SwaggerResponse(200, "Chat response", typeof(ChatMessageResponse))]
-        // [SwaggerResponse(400, "Bad request")]
-        // [SwaggerResponse(500, "Error processing chat message")]
-        // public async Task<IActionResult> SendChatMessage([FromBody] Models.ChatMessageRequest request)
-        // {
-        //     try
-        //     {
-        //         var response = await _chatAgentService.SendChatMessageAsync(
-        //             message: request.Message,
-        //             conversationId: request.ConversationId,
-        //             filter: request.Filter,
-        //             nameSpace: request.Namespace
-        //         );
+        public class ChatMessageRequest
+        {
+            public string Message { get; set; } = string.Empty;
+            public int TopKDocs { get; set; } = 8;
+            public int TopKPatients { get; set; } = 5;
+        }
 
-        //         return Ok(response);
-        //     }
-        //     catch (HttpRequestException ex)
-        //     {
-        //         return StatusCode(500, $"Error communicating with chat service: {ex.Message}");
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
-        //     }
-        // }
+        [HttpPost("{patientId}/message")]
+        [SwaggerOperation(Summary = "Send a message scoped to a patient using RAG retrieval and LLM reply")]
+        [SwaggerResponse(200, "Chat response", typeof(object))]
+        public async Task<IActionResult> SendPatientMessage([FromRoute] Guid patientId, [FromBody] ChatMessageRequest req)
+        {
+            if (patientId == Guid.Empty || string.IsNullOrWhiteSpace(req?.Message))
+                return BadRequest("Invalid patient id or empty message.");
 
+            var dto = new PatientChatRequestDto
+            {
+                Message = req.Message,
+                TopKDocs = req.TopKDocs,
+                TopKPatients = req.TopKPatients
+            };
+
+            var res = await _patientChatService.SendPatientMessageAsync(patientId, dto, CancellationToken.None);
+            return Ok(res);
+        }
+
+        [HttpPost("search/patients")]
+        [SwaggerOperation(Summary = "Search patients by free-text query using vector retrieval")]
+        public async Task<IActionResult> SearchPatients([FromBody] ChatMessageRequest req)
+        {
+            if (string.IsNullOrWhiteSpace(req?.Message)) return BadRequest("Query is required.");
+            var dto = new PatientChatRequestDto
+            {
+                Message = req.Message,
+                TopKDocs = req.TopKDocs,
+                TopKPatients = req.TopKPatients
+            };
+
+            var res = await _patientChatService.SearchPatientsAsync(dto, CancellationToken.None);
+            return Ok(res);
+        }
     }
 }
